@@ -1326,7 +1326,7 @@ fn capture_webkitgtk(
     scale: f64,
     viewport: (f64, f64),
 ) {
-    use webkit2gtk::prelude::WebViewExt;
+    use webkit2gtk::WebViewExt;
 
     if viewport.0 <= 0.0 || viewport.1 <= 0.0 {
         send_failure(
