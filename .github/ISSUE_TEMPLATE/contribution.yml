@@ -1,0 +1,57 @@
+name: Contribution Proposal
+description: Propose a change before opening a pull request
+title: "[Contribution]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [CONTRIBUTING.md](https://github.com/aidget-ai/aidget/blob/main/CONTRIBUTING.md) before submitting.
+
+        Issues are open to everyone. Use this form to agree on a change before opening a pull request. Admins can reply with `lgtmi` to add the Issue author to the pull request allowlist.
+
+        Keep this short and in your own words.
+  - type: textarea
+    id: change
+    attributes:
+      label: What do you want to change?
+      description: Describe the smallest useful behavior, not a generic refactor.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why?
+      description: What problem does this solve, and who is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: Technical approach
+      description: How would you implement it without adding a daemon, fetcher, scheduler or unnecessary abstraction?
+    validations:
+      required: true
+  - type: input
+    id: platforms
+    attributes:
+      label: Platforms affected
+      placeholder: macOS, Windows, Linux, or all
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: How should this be verified?
+      description: List tests, reproduction steps or platform checks you expect to run.
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Acknowledgement
+      options:
+        - label: I understand the code I propose and can explain its behavior.
+          required: true
+        - label: I will follow CONTRIBUTING.md and will not tag releases.
+          required: true

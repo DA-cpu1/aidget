@@ -1,0 +1,95 @@
+[package]
+name = "aidget"
+version = "0.1.0"
+edition = "2021"
+description = "Agent-controllable desktop widgets"
+license = "MIT"
+
+[lib]
+name = "aidget"
+path = "src/lib.rs"
+
+[[bin]]
+name = "aidget"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.5", features = [] }
+
+[dependencies]
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+dirs = "6"
+include_dir = "0.7"
+libc = "0.2"
+lol_html = "3.0"
+notify = "8"
+percent-encoding = "2"
+rmcp = { version = "3.5", features = ["server", "macros", "schemars", "transport-io"] }
+schemars = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_yaml = "0.9"
+tauri = { version = "2.12", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+thiserror = "2"
+toml = "1.1"
+toml_edit = "0.25"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "net", "io-util"] }
+uuid = { version = "1", features = ["v4"] }
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+cairo-rs = { version = "0.18", features = ["png"] }
+webkit2gtk = "2.0"
+zbus = { version = "5", default-features = false, features = ["async-io", "blocking-api"] }
+
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.39"
+windows = { version = "0.62", features = [
+  "Devices_Geolocation",
+  "Foundation",
+  "Win32_Foundation",
+  "Win32_System_WinRT",
+] }
+windows-core = "0.62"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+block2 = "0.6"
+objc2 = "0.6"
+window-vibrancy = "0.8.1"
+objc2-app-kit = { version = "0.3", features = [
+  "NSCursor",
+  "NSEvent",
+  "NSImage",
+  "NSGraphics",
+  "NSBitmapImageRep",
+  "NSResponder",
+  "NSView",
+  "NSWindow",
+  "objc2-quartz-core",
+] }
+objc2-core-location = { version = "0.3", features = [
+  "CLLocation",
+  "CLLocationManager",
+  "CLLocationManagerDelegate",
+  "CLGeocoder",
+  "CLPlacemark",
+  "CLError",
+  "block2",
+] }
+objc2-foundation = { version = "0.3", features = [
+  "NSData",
+  "NSError",
+  "NSString",
+  "NSValue",
+] }
+objc2-web-kit = { version = "0.3", features = ["WKWebView", "WKSnapshotConfiguration"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true

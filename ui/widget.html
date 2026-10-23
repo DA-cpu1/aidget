@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aidget</title>
+    <link rel="stylesheet" href="./src/widget.css" />
+  </head>
+  <body>
+    <main class="widget-chrome" data-state="loading">
+      <div class="host-surface" aria-hidden="true"></div>
+      <div class="grab" data-drag-handle>
+        <span class="grab-dots" aria-hidden="true"></span>
+      </div>
+      <iframe
+        class="widget"
+        title="aidget widget"
+        sandbox
+        referrerpolicy="no-referrer"
+      ></iframe>
+      <div class="fault" role="status">
+        <strong>小组件加载失败</strong>
+        <span data-fault-message></span>
+      </div>
+    </main>
+    <script type="module" src="./src/widget-page.ts"></script>
+  </body>
+</html>

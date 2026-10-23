@@ -1,0 +1,52 @@
+name: Approve contributor
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: approve-contributor
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    if: github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Update contributor allowlist
+        id: approval
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENTER: ${{ github.event.comment.user.login }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: node scripts/contributors/approval.mjs update
+
+      - name: Commit allowlist update
+        if: steps.approval.outputs.status == 'changed'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/APPROVED_CONTRIBUTORS
+          git commit -m "chore: approve contributor from issue #${{ github.event.issue.number }}"
+          git push
+
+      - name: Comment on issue
+        if: steps.approval.outputs.status == 'changed' || steps.approval.outputs.status == 'already'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          APPROVAL_STATUS: ${{ steps.approval.outputs.status }}
+          APPROVAL_USERNAME: ${{ steps.approval.outputs.username }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node scripts/contributors/approval.mjs comment

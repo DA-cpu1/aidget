@@ -1,0 +1,294 @@
+:root {
+  color-scheme: light dark;
+  --paper: #f8f1e5;
+  --paper-deep: #f1e5d2;
+  --ink: #29231c;
+  --ink-soft: #746858;
+  --accent: #bd5e3e;
+  --accent-soft: rgb(189 94 62 / 0.16);
+  --cool: rgb(72 122 139 / 0.17);
+  --hair: rgb(74 58 40 / 0.14);
+  --field: rgb(255 252 246 / 0.64);
+  --field-line: rgb(89 68 45 / 0.16);
+  --send-bg: #171513;
+  --send-ink: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #24211c;
+    --paper-deep: #1c1a17;
+    --ink: #f5ead9;
+    --ink-soft: #b9aa95;
+    --accent: #e38b68;
+    --accent-soft: rgb(227 139 104 / 0.15);
+    --cool: rgb(111 168 184 / 0.12);
+    --hair: rgb(245 234 217 / 0.13);
+    --field: rgb(255 255 255 / 0.045);
+    --field-line: rgb(245 234 217 / 0.14);
+    --send-bg: #f3eadc;
+    --send-ink: #201d18;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+body {
+  color: var(--ink);
+  font-family: "Avenir Next", "Segoe UI Variable", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.welcome {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 19px 20px 18px;
+  overflow: hidden;
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse 52% 48% at 92% 4%, var(--accent-soft), transparent 68%),
+    radial-gradient(ellipse 48% 38% at 8% 100%, var(--cool), transparent 70%),
+    linear-gradient(148deg, var(--paper), var(--paper-deep));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    0 1px 2px rgb(50 36 18 / 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcome {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.07),
+      0 1px 2px rgb(0 0 0 / 0.4);
+  }
+}
+
+.welcome::before,
+.welcome::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  content: "";
+}
+
+.welcome::before {
+  z-index: -2;
+  inset: -24%;
+  opacity: 0.7;
+  background:
+    radial-gradient(ellipse 23% 32% at 78% 38%, rgb(214 113 76 / 0.19), transparent 72%),
+    radial-gradient(ellipse 19% 27% at 60% 79%, rgb(211 164 83 / 0.12), transparent 74%),
+    radial-gradient(ellipse 24% 28% at 25% 62%, rgb(67 125 143 / 0.12), transparent 75%);
+  filter: blur(16px) saturate(1.12);
+}
+
+.welcome::after {
+  z-index: -1;
+  opacity: 0.08;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+@media (prefers-color-scheme: dark) {
+  .welcome::after {
+    opacity: 0.1;
+    mix-blend-mode: soft-light;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordmark {
+  font-family: "Avenir Next Condensed", "Avenir Next", "Futura", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+}
+
+.version {
+  display: inline-flex;
+  align-items: center;
+  min-height: 21px;
+  padding: 2px 7px 1px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.2);
+  color: var(--ink-soft);
+  font-family: "SF Mono", "Menlo", monospace;
+  font-size: 9px;
+  letter-spacing: 0.045em;
+}
+
+h1 {
+  margin: 20px 0 0;
+  font-family: "Songti SC", "Noto Serif SC", "Iowan Old Style", serif;
+  font-size: 19.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+h1 span {
+  color: var(--accent);
+  font-family: "Iowan Old Style", "Baskerville", "Songti SC", serif;
+  font-size: 1.04em;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+.usage {
+  margin-top: auto;
+}
+
+.usage-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 8px;
+  color: var(--ink-soft);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.usage-label::after {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--hair), transparent);
+  content: "";
+}
+
+.prompt {
+  --prompt-inset: 12px;
+  --type-size: 10.5px;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 5px 5px 5px var(--prompt-inset);
+  overflow: hidden;
+  border: 1px solid var(--field-line);
+  border-radius: 12px;
+  background: var(--field);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    0 1px 0 rgb(255 255 255 / 0.28);
+  font-family: "SF Mono", "Menlo", monospace;
+  font-size: var(--type-size);
+}
+
+@media (prefers-color-scheme: dark) {
+  .prompt {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.045),
+      0 1px 0 rgb(0 0 0 / 0.18);
+  }
+}
+
+.typed {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+}
+
+.typed::after {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 1px;
+  height: 15px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgb(189 94 62 / 0.34);
+  transform: translateY(-50%);
+  animation: caret-move 2.42s steps(22, end) 0.5s forwards;
+  content: "";
+}
+
+.prompt-value {
+  display: block;
+  color: var(--ink);
+  line-height: 1;
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0);
+  animation: type 2.42s steps(22, end) 0.5s forwards;
+}
+
+.send {
+  display: grid;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--send-bg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
+  color: var(--send-ink);
+}
+
+@keyframes type {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes caret-move {
+  to {
+    left: 100%;
+  }
+}
+
+@media (max-width: 330px) {
+  .welcome {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .prompt {
+    --prompt-inset: 10px;
+    --type-size: 9.6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed::after {
+    left: 100%;
+    animation: none;
+  }
+
+  .prompt-value {
+    clip-path: none;
+    animation: none;
+  }
+}

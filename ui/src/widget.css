@@ -1,0 +1,127 @@
+:root {
+  color-scheme: light dark;
+  --widget-chrome: #1d1a15;
+  --host-surface: rgb(247 240 230 / 0.94);
+  --host-edge: rgb(255 255 255 / 0.5);
+  --widget-fault: #8a2c14;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --widget-chrome: #f4ece0;
+    --host-surface: rgb(30 26 22 / 0.94);
+    --host-edge: rgb(255 255 255 / 0.08);
+    --widget-fault: #ffb59c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Songti SC", "Noto Serif SC", "Iowan Old Style", serif;
+  color: var(--widget-chrome);
+}
+
+/* The window is a transparent host; the card is clipped to a rounded frame. */
+.widget-chrome {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/*
+ * Static fallback material for widgets that leave themselves transparent. It
+ * must stay static: no backdrop-filter, and no :focus/:hover/material rules.
+ * macOS recomputes desktop blur as a window moves or changes key status, which
+ * is what made the card flip between frosted and fully transparent.
+ */
+.host-surface {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--host-surface);
+  box-shadow:
+    inset 0 1px 0 var(--host-edge),
+    inset 0 0 0 1px rgb(120 96 66 / 0.1);
+}
+
+.widget-chrome[data-surface="none"] .host-surface {
+  display: none;
+}
+
+.widget {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color-scheme: light dark;
+}
+
+.grab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  -webkit-app-region: no-drag;
+}
+
+.grab:active {
+  cursor: grabbing;
+}
+
+.grab[hidden] {
+  display: none;
+}
+
+.grab-dots {
+  width: 26px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.grab:hover .grab-dots {
+  opacity: 0.24;
+}
+
+.fault {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--widget-fault);
+}
+
+.fault[hidden] {
+  display: none;
+}
+
+.fault strong {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}

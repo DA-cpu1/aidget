@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>aidget</title>
+    <script>
+      const theme = localStorage.getItem("aidget.main.theme");
+      document.documentElement.dataset.theme =
+        theme === "light" || theme === "dark" ? theme : "system";
+      document.documentElement.style.colorScheme =
+        theme === "light" || theme === "dark" ? theme : "light dark";
+    </script>
+    <link rel="stylesheet" href="./src/main.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-bar" data-drag-region>
+          <img class="brand-mark" data-brand-icon alt="" aria-hidden="true" />
+          <span class="brand-name">aidget</span>
+          <div class="window-controls" data-window-controls>
+            <button type="button" data-window-action="minimize" aria-label="Minimize">
+              <i data-lucide="minus"></i>
+            </button>
+            <button type="button" data-window-action="maximize" aria-label="Maximize">
+              <i data-lucide="square"></i>
+            </button>
+            <button type="button" data-window-action="close" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+        </div>
+        <nav class="navigation" aria-label="Main navigation">
+          <div class="nav-group">
+            <p class="nav-heading" data-message="integrations"></p>
+            <button class="nav-item" type="button" data-page="integrations">
+              <span class="nav-icon" aria-hidden="true"><i data-lucide="server-cog"></i></span>
+              <span data-message="mcpAndSkills"></span>
+            </button>
+          </div>
+          <div class="nav-group">
+            <p class="nav-heading" data-message="widgetsGroup"></p>
+            <button class="nav-item is-active" type="button" data-page="local-widgets" aria-current="page">
+              <span class="nav-icon" aria-hidden="true"><i data-lucide="layout-grid"></i></span>
+              <span data-message="localWidgets"></span>
+            </button>
+            <button class="nav-item" type="button" data-page="community-widgets">
+              <span class="nav-icon" aria-hidden="true"><i data-lucide="users-round"></i></span>
+              <span data-message="communityWidgets"></span>
+            </button>
+          </div>
+          <div class="nav-group">
+            <p class="nav-heading" data-message="settings"></p>
+            <button class="nav-item" type="button" data-page="general">
+              <span class="nav-icon" aria-hidden="true"><i data-lucide="settings"></i></span>
+              <span data-message="general"></span>
+            </button>
+            <button class="nav-item" type="button" data-page="about">
+              <span class="nav-icon" aria-hidden="true"><i data-lucide="info"></i></span>
+              <span data-message="about"></span>
+            </button>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="page-header" data-drag-region>
+          <div class="breadcrumb" aria-hidden="true">
+            <span data-current-group></span>
+            <span class="breadcrumb-divider">/</span>
+            <strong data-current-page></strong>
+          </div>
+        </header>
+
+        <section class="page-content" data-view="local-widgets" aria-labelledby="local-widgets-title">
+          <h1 class="visually-hidden" id="local-widgets-title" data-message="localWidgetsTitle"></h1>
+          <div class="widget-filters" role="group" data-filter-options>
+            <div class="segmented-control" data-widget-filter-control>
+              <span class="segmented-control-indicator" aria-hidden="true"></span>
+              <button class="segment-button" type="button" data-value="all" data-message="filterAll"></button>
+              <button class="segment-button" type="button" data-value="enabled" data-message="filterEnabled"></button>
+              <button class="segment-button" type="button" data-value="disabled" data-message="filterDisabled"></button>
+            </div>
+            <div class="widget-filter-actions">
+              <button class="sort-filter" type="button" data-widget-sort>
+                <span data-sort-label></span>
+              </button>
+              <button
+                class="recycle-filter"
+                type="button"
+                data-recycle-filter
+                data-message="recycleBin"
+                aria-pressed="false"
+              ></button>
+            </div>
+          </div>
+          <div class="widget-grid" data-grid aria-live="polite"></div>
+          <div class="widget-grid" data-deleted-grid aria-live="polite" hidden></div>
+          <div class="empty-state" data-empty hidden>
+            <h2 data-empty-title></h2>
+            <p data-empty-description></p>
+          </div>
+        </section>
+
+        <section
+          class="page-content"
+          data-view="community-widgets"
+          aria-labelledby="community-widgets-title"
+          hidden
+        >
+          <div class="placeholder-state">
+            <h1 id="community-widgets-title" data-message="communityWidgetsTitle"></h1>
+            <p data-message="communityWidgetsDescription"></p>
+          </div>
+        </section>
+
+        <section
+          class="page-content integration-page"
+          data-view="integrations"
+          aria-labelledby="integrations-title"
+          hidden
+        >
+          <div class="page-intro">
+            <h1 id="integrations-title" data-message="mcpAndSkillsTitle"></h1>
+            <p class="page-description" data-page-description data-message="mcpAndSkillsDescription"></p>
+          </div>
+          <section class="integration-card" aria-labelledby="mcp-step-title">
+            <div class="integration-card-heading">
+              <div class="integration-step-copy">
+                <h2 id="mcp-step-title" data-message="mcpStepTitle"></h2>
+                <code class="integration-detail" data-mcp-command></code>
+              </div>
+              <div class="agent-strip" data-agent-strip="mcp"></div>
+            </div>
+          </section>
+          <section class="integration-card" aria-labelledby="skills-step-title">
+            <div class="integration-card-heading">
+              <div class="integration-step-copy">
+                <h2 id="skills-step-title" data-message="skillsStepTitle"></h2>
+                <code class="integration-detail" data-skill-directory></code>
+              </div>
+              <div class="agent-strip" data-agent-strip="skills"></div>
+            </div>
+          </section>
+          <p class="integration-status" hidden role="status"></p>
+        </section>
+
+        <section class="page-content settings-page" data-view="general" aria-labelledby="general-title" hidden>
+          <h1 class="visually-hidden" id="general-title" data-message="generalTitle"></h1>
+          <div class="settings-list">
+            <div class="settings-row">
+              <span class="setting-label" data-message="theme"></span>
+              <div class="segmented-control settings-segmented" role="group" aria-label="Color theme" data-theme-options>
+                <span class="segmented-control-indicator" aria-hidden="true"></span>
+                <button class="segment-button" type="button" data-value="system" data-message="system"></button>
+                <button class="segment-button" type="button" data-value="light" data-message="light"></button>
+                <button class="segment-button" type="button" data-value="dark" data-message="dark"></button>
+              </div>
+            </div>
+            <label class="settings-row">
+              <span class="setting-label" data-message="language"></span>
+              <select class="language-select" data-language>
+                <option value="system" data-message="system"></option>
+                <option value="en">English</option>
+                <option value="zh-CN">简体中文</option>
+              </select>
+            </label>
+            <div class="settings-row">
+              <span class="setting-label" data-message="launchAtLogin"></span>
+              <button class="switch" type="button" role="switch" aria-checked="false" data-autostart>
+                <span></span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-content settings-page" data-view="about" aria-labelledby="about-title" hidden>
+          <h1 class="visually-hidden" id="about-title" data-message="aboutTitle"></h1>
+          <div class="settings-list">
+            <div class="settings-row">
+              <span class="setting-label" data-message="version"></span>
+              <span class="setting-value" data-version>—</span>
+            </div>
+            <div class="settings-row community-row">
+              <span class="setting-label" data-message="community"></span>
+              <div class="community-actions">
+                <button type="button" disabled data-message="discord"></button>
+                <button type="button" disabled data-message="github"></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <p class="fault" data-fault role="status" hidden></p>
+      </main>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
