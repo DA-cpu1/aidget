@@ -5,7 +5,7 @@ on:
     types: [created]
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
 concurrency:
@@ -18,9 +18,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Create contributor approval token
+        id: bot-token
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.AIDGET_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.AIDGET_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.repository.default_branch }}
+          token: ${{ steps.bot-token.outputs.token }}
 
       - name: Update contributor allowlist
         id: approval
@@ -35,8 +46,8 @@ jobs:
       - name: Commit allowlist update
         if: steps.approval.outputs.status == 'changed'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "aidget-approve-contributor[bot]"
+          git config user.email "${{ vars.AIDGET_BOT_APP_ID }}+aidget-approve-contributor[bot]@users.noreply.github.com"
           git add .github/APPROVED_CONTRIBUTORS
           git commit -m "chore: approve contributor from issue #${{ github.event.issue.number }}"
           git push
