@@ -46,14 +46,14 @@ jobs:
       - name: Commit allowlist update
         if: steps.approval.outputs.status == 'changed'
         run: |
-          git config user.name "aidget-approve-contributor[bot]"
-          git config user.email "${{ vars.AIDGET_BOT_APP_ID }}+aidget-approve-contributor[bot]@users.noreply.github.com"
+          git config user.name "aidget-bot[bot]"
+          git config user.email "${{ vars.AIDGET_BOT_APP_ID }}+aidget-bot[bot]@users.noreply.github.com"
           git add .github/APPROVED_CONTRIBUTORS
           git commit -m "chore: approve contributor from issue #${{ github.event.issue.number }}"
           git push
 
       - name: Comment on issue
-        if: steps.approval.outputs.status == 'changed' || steps.approval.outputs.status == 'already'
+        if: steps.approval.outputs.status == 'changed'
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ github.token }}

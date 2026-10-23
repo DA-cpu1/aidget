@@ -46,6 +46,22 @@ export function addApprovedContributor(content, username) {
   };
 }
 
+/**
+ * Builds the public issue comment for a contributor approval result.
+ * @param {"changed" | "already"} status
+ * @param {string} username
+ * @returns {string | null} The comment, or null when an existing approval should stay silent.
+ */
+export function formatApprovalComment(status, username) {
+  if (status === "changed") {
+    return `@${username}, you are approved to open pull requests.`;
+  }
+  if (status === "already") {
+    return null;
+  }
+  throw new Error(`unexpected approval status: ${status}`);
+}
+
 async function request(token, method, path, body) {
   const response = await fetch(`${API_ROOT}${path}`, {
     method,
@@ -134,25 +150,16 @@ async function updateApproval() {
 
 async function commentApproval() {
   const status = process.env.APPROVAL_STATUS;
-  if (status !== "changed" && status !== "already") return;
-
   const repository = process.env.GITHUB_REPOSITORY;
   const issueNumber = process.env.ISSUE_NUMBER;
   const issueAuthor = process.env.APPROVAL_USERNAME;
   const token = process.env.GITHUB_TOKEN;
+  const body = formatApprovalComment(status, issueAuthor);
+  if (body === null) return;
+
   if (!repository || !issueNumber || !issueAuthor || !token) {
     throw new Error("missing GitHub issue context");
   }
-
-  const body =
-    status === "changed"
-      ? [
-          `@${issueAuthor} is approved to open pull requests.`,
-          "",
-          "This approval adds the account to `.github/APPROVED_CONTRIBUTORS` only. It does not grant repository access.",
-          "Unapproved pull requests are closed automatically.",
-        ].join("\n")
-      : `@${issueAuthor} is already approved to open pull requests.`;
 
   await request(
     token,

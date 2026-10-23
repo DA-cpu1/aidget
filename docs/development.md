@@ -19,14 +19,12 @@ relevant checks again and merge the newly reviewed SHA.
 
 ## Contributor approval automation
 
-`main` only accepts direct pushes from the `aidget-approve-contributor` GitHub
-App. The App is installed only on this repository with Contents write access.
-The approval workflow uses the `AIDGET_BOT_CLIENT_ID` and `AIDGET_BOT_APP_ID`
-repository variables plus the `AIDGET_BOT_PRIVATE_KEY` Actions secret to mint a
-short-lived installation token.
+`main` only accepts direct pushes from the repository owner and the
+`aidget-bot` GitHub App. The App is installed only on this
+repository with Contents write access. The approval workflow uses the
+`AIDGET_BOT_CLIENT_ID` and `AIDGET_BOT_APP_ID` repository variables plus the
+`AIDGET_BOT_PRIVATE_KEY` Actions secret to mint a short-lived installation token.
 
-Keep the App in both the push allowlist and pull-request bypass allowlist for
-`main`. If the private key is exposed, rotate it before removing the old key.
 
 ## Local checks
 

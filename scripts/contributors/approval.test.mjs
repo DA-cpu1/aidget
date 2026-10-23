@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   addApprovedContributor,
   canApprove,
+  formatApprovalComment,
   parseApprovalCommand,
   parseApprovedContributors,
   UNAPPROVED_PR_MESSAGE,
@@ -46,6 +47,13 @@ Hubot
     const second = addApprovedContributor(first.content, "hubot");
     expect(second.status).toBe("already");
     expect(second.content).toBe(first.content);
+  });
+
+  test("approval comments use the contributor-facing confirmation", () => {
+    expect(formatApprovalComment("changed", "octocat")).toBe(
+      "@octocat, you are approved to open pull requests.",
+    );
+    expect(formatApprovalComment("already", "octocat")).toBeNull();
   });
 
   test("unapproved pull requests receive the documented message", () => {
