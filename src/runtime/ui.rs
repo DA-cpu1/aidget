@@ -1350,6 +1350,8 @@ fn capture_webkitgtk(
                 .snapshot_future(SnapshotRegion::Visible, SnapshotOptions::empty())
                 .await
                 .map_err(|error| Error::Other(format!("webkit snapshot: {error}")))?;
+            let captured = cairo::ImageSurface::try_from(captured)
+                .map_err(|_| Error::Other("webkit snapshot is not an image surface".to_string()))?;
             if captured.width() <= 0 || captured.height() <= 0 {
                 return Err(Error::Other("webkit snapshot is empty".to_string()));
             }
