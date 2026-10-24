@@ -1,3 +1,4 @@
+use aidget::settings::{ensure, load};
 use aidget::widgets::retention;
 use std::fs;
 use std::path::Path;
@@ -10,7 +11,7 @@ fn root() -> (TempDir, std::path::PathBuf) {
     let root = dir.path().to_path_buf();
     fs::create_dir_all(root.join("state/screenshots")).unwrap();
     fs::create_dir_all(root.join("trash")).unwrap();
-    retention::ensure(&root).unwrap();
+    ensure(&root).unwrap();
     (dir, root)
 }
 
@@ -19,48 +20,6 @@ fn set_modified(path: &Path, timestamp: u64) {
         .unwrap()
         .set_modified(UNIX_EPOCH + Duration::from_secs(timestamp))
         .unwrap();
-}
-
-#[test]
-fn settings_are_created_with_defaults_and_reject_invalid_shapes() {
-    let (_dir, root) = root();
-    assert_eq!(retention::SETTINGS_FILE, "settings.toml");
-    let settings = retention::load(&root).unwrap();
-    assert_eq!(settings.screenshot_retention.get(), 30);
-    assert_eq!(settings.trash_retention.get(), 20);
-
-    let path = root.join(retention::SETTINGS_FILE);
-    let defaults = fs::read_to_string(&path).unwrap();
-    assert!(defaults.contains("# Maximum number of screenshots"));
-    assert!(defaults.contains("screenshot_retention = 30"));
-    assert!(defaults.contains("trash_retention = 20"));
-    for invalid in [
-        "",
-        "screenshot_retention = 30\ntrash_retention = 0\n",
-        "screenshot_retention = 30\ntrash_retention = 20\nunknown = true\n",
-        "screenshot_retention = 30\nscreenshot_retention = 10\ntrash_retention = 20\n",
-        "not = [valid",
-    ] {
-        fs::write(&path, invalid).unwrap();
-        assert!(retention::load(&root).is_err(), "{invalid}");
-    }
-}
-
-#[test]
-fn ensure_preserves_existing_toml_comments_and_formatting() {
-    let (_dir, root) = root();
-    let path = root.join(retention::SETTINGS_FILE);
-    let custom = "\
-# Keep enough screenshots for the current debugging session.\n\
-screenshot_retention = 12\n\
-\n\
-# Pruned widgets remain recoverable for a shorter period.\n\
-trash_retention = 7\n";
-    fs::write(&path, custom).unwrap();
-
-    retention::ensure(&root).unwrap();
-
-    assert_eq!(fs::read_to_string(path).unwrap(), custom);
 }
 
 #[test]
@@ -76,7 +35,7 @@ fn screenshot_retention_keeps_newest_managed_pngs() {
     fs::write(&note, b"not a screenshot").unwrap();
     let outside = root.join("outside.png");
     fs::write(&outside, b"custom output").unwrap();
-    let settings = retention::load(&root).unwrap();
+    let settings = load(&root).unwrap();
 
     retention::prune_screenshots(&screenshots, settings.screenshot_retention).unwrap();
     retention::prune_screenshots(&screenshots, settings.screenshot_retention).unwrap();
@@ -131,7 +90,7 @@ fn trash_retention_keeps_newest_directories() {
     }
     let note = trash.join("keep.txt");
     fs::write(&note, b"not a trashed widget").unwrap();
-    let settings = retention::load(&root).unwrap();
+    let settings = load(&root).unwrap();
 
     retention::prune_trash(&trash, settings.trash_retention).unwrap();
     retention::prune_trash(&trash, settings.trash_retention).unwrap();

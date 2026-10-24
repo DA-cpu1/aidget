@@ -5,6 +5,7 @@ use aidget::runtime::ui::{
     cached_preview, content_token, html_widget_surface, is_relevant, main_widgets, place_frame,
     record_revision, require_main_window_label, retain_widget_revisions, MainState, WidgetSummary,
 };
+use aidget::settings::{Language, Theme, TrayClickAction};
 use aidget::widgets::model::{DeletedWidgetSummary, WidgetFrame, WidgetSurface};
 use aidget::widgets::store::{Store, WidgetEdit, CONFIG_FILE};
 use tempfile::TempDir;
@@ -283,6 +284,9 @@ fn main_state_exposes_widget_metadata_in_camel_case() {
             created_at: 1_761_158_400_000,
         }],
         version: "0.1.0".to_string(),
+        theme: Theme::Dark,
+        language: Language::ZhCn,
+        tray_click_action: TrayClickAction::Window,
     })
     .unwrap();
 
@@ -293,6 +297,9 @@ fn main_state_exposes_widget_metadata_in_camel_case() {
     assert_eq!(deleted[0]["createdAt"], 1_761_158_400_000_u64);
     assert!(deleted[0].get("trash_name").is_none());
     assert!(value.get("deleted_widgets").is_none());
+    assert_eq!(value["theme"], "dark");
+    assert_eq!(value["language"], "zh-CN");
+    assert_eq!(value["trayClickAction"], "window");
 }
 
 #[test]

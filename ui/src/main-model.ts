@@ -1,3 +1,6 @@
+import type { Locale } from "./main-locale";
+import type { Theme } from "./main-preferences";
+
 export interface WidgetSummary {
   id: string;
   title: string;
@@ -23,10 +26,14 @@ export interface MainState {
   widgets: WidgetSummary[];
   deletedWidgets: DeletedWidgetSummary[];
   version: string;
+  theme: Theme;
+  language: Locale;
+  trayClickAction: TrayClickAction;
 }
 
 export type WidgetFilter = "all" | "enabled" | "disabled" | "deleted";
 export type WidgetSortOrder = "newest" | "oldest";
+export type TrayClickAction = "menu" | "window";
 
 export function sortedActiveWidgets(
   widgets: WidgetSummary[],

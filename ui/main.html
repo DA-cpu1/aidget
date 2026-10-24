@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>aidget</title>
-    <script>
-      const theme = localStorage.getItem("aidget.main.theme");
-      document.documentElement.dataset.theme =
-        theme === "light" || theme === "dark" ? theme : "system";
-      document.documentElement.style.colorScheme =
-        theme === "light" || theme === "dark" ? theme : "light dark";
-    </script>
     <link rel="stylesheet" href="./src/main.css" />
   </head>
   <body>
@@ -149,30 +142,61 @@
 
         <section class="page-content settings-page" data-view="general" aria-labelledby="general-title" hidden>
           <h1 class="visually-hidden" id="general-title" data-message="generalTitle"></h1>
-          <div class="settings-list">
-            <div class="settings-row">
-              <span class="setting-label" data-message="theme"></span>
-              <div class="segmented-control settings-segmented" role="group" aria-label="Color theme" data-theme-options>
-                <span class="segmented-control-indicator" aria-hidden="true"></span>
-                <button class="segment-button" type="button" data-value="system" data-message="system"></button>
-                <button class="segment-button" type="button" data-value="light" data-message="light"></button>
-                <button class="segment-button" type="button" data-value="dark" data-message="dark"></button>
+          <div class="settings-groups">
+            <section class="settings-group" aria-labelledby="appearance-title">
+              <h2 class="settings-group-title" id="appearance-title" data-message="appearance"></h2>
+              <div class="settings-list">
+                <div class="settings-row">
+                  <span class="setting-label" data-message="theme"></span>
+                  <div
+                    class="segmented-control settings-segmented theme-segmented"
+                    role="group"
+                    aria-label="Color theme"
+                    data-theme-options
+                  >
+                    <span class="segmented-control-indicator" aria-hidden="true"></span>
+                    <button class="segment-button" type="button" data-value="system" data-message="system"></button>
+                    <button class="segment-button" type="button" data-value="light" data-message="light"></button>
+                    <button class="segment-button" type="button" data-value="dark" data-message="dark"></button>
+                  </div>
+                </div>
+                <label class="settings-row">
+                  <span class="setting-label" data-message="language"></span>
+                  <select class="language-select" data-language>
+                    <option value="system" data-message="system"></option>
+                    <option value="en">English</option>
+                    <option value="zh-CN">简体中文</option>
+                  </select>
+                </label>
               </div>
-            </div>
-            <label class="settings-row">
-              <span class="setting-label" data-message="language"></span>
-              <select class="language-select" data-language>
-                <option value="system" data-message="system"></option>
-                <option value="en">English</option>
-                <option value="zh-CN">简体中文</option>
-              </select>
-            </label>
-            <div class="settings-row">
-              <span class="setting-label" data-message="launchAtLogin"></span>
-              <button class="switch" type="button" role="switch" aria-checked="false" data-autostart>
-                <span></span>
-              </button>
-            </div>
+            </section>
+            <section class="settings-group" aria-labelledby="behavior-title">
+              <h2 class="settings-group-title" id="behavior-title" data-message="behavior"></h2>
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div class="setting-copy">
+                    <span class="setting-label" data-message="trayClickAction"></span>
+                    <span class="setting-note" data-tray-linux-note data-message="trayLinuxUnsupported" hidden></span>
+                  </div>
+                  <div
+                    class="segmented-control settings-segmented"
+                    role="group"
+                    aria-label="Click tray icon"
+                    data-tray-click-options
+                  >
+                    <span class="segmented-control-indicator" aria-hidden="true"></span>
+                    <button class="segment-button" type="button" data-value="menu" data-message="trayMenu"></button>
+                    <button class="segment-button" type="button" data-value="window" data-message="trayWindow"></button>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <span class="setting-label" data-message="launchAtLogin"></span>
+                  <button class="switch" type="button" role="switch" aria-checked="false" data-autostart>
+                    <span></span>
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
 

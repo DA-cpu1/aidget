@@ -36,6 +36,7 @@ import {
   sortedDeletedWidgets,
   type DeletedWidgetSummary,
   type MainState,
+  type TrayClickAction,
   type WidgetFilter,
   type WidgetSortOrder,
   type WidgetSummary,
@@ -43,14 +44,7 @@ import {
 import { translate, type Locale, type MessageKey } from "./main-locale";
 import { createMainStartup } from "./main-startup";
 import { createPreviewRefresh } from "./preview-refresh";
-import {
-  saveLocale,
-  saveTheme,
-  resolvedLocale,
-  storedLocale,
-  storedTheme,
-  type Theme,
-} from "./main-preferences";
+import { applyTheme, resolvedLocale, type Theme } from "./main-preferences";
 import { createSegmentedControl } from "./segmented-control";
 import { renderMiddleEllipsis } from "./text-ellipsis";
 
@@ -76,6 +70,8 @@ interface DeletedWidgetView {
   trashName: string;
 }
 
+type PreferencesSnapshot = Pick<MainState, "theme" | "language" | "trayClickAction">;
+
 type Page =
   | "local-widgets"
   | "community-widgets"
@@ -94,6 +90,8 @@ const currentPage = document.querySelector<HTMLElement>("[data-current-page]")!;
 const filterOptions = document.querySelector<HTMLElement>("[data-filter-options]")!;
 const filterControlRoot = document.querySelector<HTMLElement>("[data-widget-filter-control]")!;
 const themeControlRoot = document.querySelector<HTMLElement>("[data-theme-options]")!;
+const trayClickControlRoot = document.querySelector<HTMLElement>("[data-tray-click-options]")!;
+const trayLinuxNote = document.querySelector<HTMLElement>("[data-tray-linux-note]")!;
 const recycleFilter = document.querySelector<HTMLButtonElement>("[data-recycle-filter]")!;
 const widgetSortButton = document.querySelector<HTMLButtonElement>("[data-widget-sort]")!;
 const widgetSortLabel = widgetSortButton.querySelector<HTMLElement>("[data-sort-label]")!;
@@ -112,6 +110,12 @@ const integrationStatuses = document.querySelectorAll<HTMLElement>(".integration
 const views = new Map<string, WidgetView>();
 const deletedViews = new Map<string, DeletedWidgetView>();
 const windowApi = getCurrentWindow();
+const platform = /Macintosh|Mac OS X/.test(navigator.userAgent)
+  ? "macos"
+  : /Windows/.test(navigator.userAgent)
+    ? "windows"
+    : "linux";
+document.body.dataset.platform = platform;
 const pages: Record<Page, { group: MessageKey; title: MessageKey }> = {
   "local-widgets": { group: "widgetsGroup", title: "localWidgets" },
   "community-widgets": { group: "widgetsGroup", title: "communityWidgets" },
@@ -123,8 +127,10 @@ const pages: Record<Page, { group: MessageKey; title: MessageKey }> = {
 let state: MainState | undefined;
 let page: Page = "local-widgets";
 let filter: WidgetFilter = "all";
-let theme: Theme = storedTheme();
-let locale: Locale = storedLocale();
+let theme: Theme = "system";
+let locale: Locale = "system";
+let trayClickAction: TrayClickAction = platform === "linux" ? "menu" : "window";
+let preferencesBusy = false;
 let widgetSort: WidgetSortOrder = "newest";
 let integrationInfo: IntegrationInfo | undefined;
 let integrationRequested = false;
@@ -153,9 +159,10 @@ const filterControl = createSegmentedControl(filterControlRoot, (value) => {
   selectFilter(value as WidgetFilter);
 });
 const themeControl = createSegmentedControl(themeControlRoot, (value) => {
-  theme = value as Theme;
-  saveTheme(theme);
-  renderPreferences();
+  void setTheme(value as Theme);
+});
+const trayClickControl = createSegmentedControl(trayClickControlRoot, (value) => {
+  void setTrayClickAction(value as TrayClickAction);
 });
 widgetSortButton.prepend(createElement(ArrowUpDown, {
   width: 14,
@@ -168,7 +175,7 @@ function t(key: MessageKey) {
   return translate(resolvedLocale(locale), key);
 }
 
-function applyLocale() {
+function applyLocaleStatic() {
   const resolved = resolvedLocale(locale);
   document.documentElement.lang = resolved === "zh" ? "zh-CN" : "en";
   document.querySelectorAll<HTMLElement>("[data-message]").forEach((element) => {
@@ -176,13 +183,20 @@ function applyLocale() {
     element.textContent = t(key);
   });
   document.querySelector<HTMLElement>("nav")!.setAttribute("aria-label", t("mainNavigation"));
+  themeControlRoot.setAttribute("aria-label", t("theme"));
+  trayClickControlRoot.setAttribute("aria-label", t("trayClickAction"));
   filterOptions.setAttribute("aria-label", t("widgetFilters"));
+  autoStart.setAttribute("aria-label", t("launchAtLogin"));
   document.querySelectorAll<HTMLButtonElement>("[data-window-action]").forEach((button) => {
     button.setAttribute("aria-label", t(button.dataset.windowAction as MessageKey));
   });
   document.title = "aidget";
+}
+
+function applyLocale() {
+  applyLocaleStatic();
   if (state) render(state);
-  renderPage();
+  else renderPage();
 }
 
 function renderPage() {
@@ -203,7 +217,7 @@ function renderPage() {
   renderIntegration();
   renderDescription();
   filterControl.refresh();
-  themeControl.refresh();
+  renderPreferences();
 }
 
 function renderDescription() {
@@ -331,6 +345,81 @@ function renderEmptyState() {
 function renderPreferences() {
   themeControl.setValue(theme);
   language.value = locale;
+  trayClickControl.setValue(trayClickAction);
+  trayLinuxNote.hidden = platform !== "linux";
+  themeControlRoot
+    .querySelectorAll<HTMLButtonElement>("[data-value]")
+    .forEach((button) => {
+      button.disabled = preferencesBusy;
+    });
+  language.disabled = preferencesBusy;
+  trayClickControlRoot
+    .querySelectorAll<HTMLButtonElement>("[data-value]")
+    .forEach((button) => {
+      button.disabled = platform === "linux" || preferencesBusy;
+    });
+}
+
+function currentPreferences(): PreferencesSnapshot {
+  return { theme, language: locale, trayClickAction };
+}
+
+function applyPreferences(next: PreferencesSnapshot) {
+  const languageChanged = next.language !== locale;
+  theme = next.theme;
+  locale = next.language;
+  trayClickAction = next.trayClickAction;
+  applyTheme(theme);
+  if (state) state = { ...state, ...next };
+  renderPreferences();
+  if (languageChanged) applyLocale();
+  else renderPage();
+}
+
+async function persistPreferences(previous: PreferencesSnapshot) {
+  preferencesBusy = true;
+  fault.hidden = true;
+  renderPreferences();
+  try {
+    await invoke("set_preferences", { preferences: currentPreferences() });
+  } catch (error) {
+    applyPreferences(previous);
+    showFault(`${t("settingFailed")}: ${String(error)}`);
+  } finally {
+    if (state) state = { ...state, ...currentPreferences() };
+    preferencesBusy = false;
+    renderPreferences();
+  }
+}
+
+async function setTheme(next: Theme) {
+  if (preferencesBusy || next === theme) {
+    themeControl.setValue(theme);
+    return;
+  }
+  const previous = currentPreferences();
+  applyPreferences({ ...previous, theme: next });
+  await persistPreferences(previous);
+}
+
+async function setLanguage(next: Locale) {
+  if (preferencesBusy || next === locale) {
+    language.value = locale;
+    return;
+  }
+  const previous = currentPreferences();
+  applyPreferences({ ...previous, language: next });
+  await persistPreferences(previous);
+}
+
+async function setTrayClickAction(action: TrayClickAction) {
+  if (platform === "linux" || preferencesBusy || action === trayClickAction) {
+    trayClickControl.setValue(trayClickAction);
+    return;
+  }
+  const previous = currentPreferences();
+  applyPreferences({ ...previous, trayClickAction: action });
+  await persistPreferences(previous);
 }
 
 function createView(widget: WidgetSummary): WidgetView {
@@ -582,6 +671,14 @@ function syncPreviewRefresh(immediate = false) {
 
 function render(next: MainState) {
   const initial = state === undefined;
+  const languageChanged = next.language !== locale;
+  if (!preferencesBusy) {
+    theme = next.theme;
+    locale = next.language;
+    trayClickAction = next.trayClickAction;
+    applyTheme(theme);
+    if (languageChanged) applyLocaleStatic();
+  }
   const previous = new Map([...views].map(([id, view]) => [id, view.widget]));
   const widgets = sortedActiveWidgets(next.widgets, widgetSort);
   const deletedMode = filter === "deleted";
@@ -769,9 +866,7 @@ window.addEventListener("resize", renderDescription);
 document.addEventListener("visibilitychange", () => syncPreviewRefresh(true));
 
 language.addEventListener("change", () => {
-  locale = language.value as Locale;
-  saveLocale(locale);
-  applyLocale();
+  void setLanguage(language.value as Locale);
 });
 
 document.querySelectorAll<HTMLElement>("[data-drag-region]").forEach((region) => {
@@ -793,24 +888,15 @@ document.querySelectorAll<HTMLButtonElement>("[data-window-action]").forEach((bu
   });
 });
 
-themeControlRoot.setAttribute("aria-label", t("theme"));
-filterOptions.setAttribute("aria-label", t("widgetFilters"));
-autoStart.setAttribute("aria-label", t("launchAtLogin"));
 autoStart.setAttribute("aria-checked", "false");
-document.body.dataset.platform = /Macintosh|Mac OS X/.test(navigator.userAgent)
-  ? "macos"
-  : /Windows/.test(navigator.userAgent)
-    ? "windows"
-    : "linux";
 
 brandMark.src = brandIcon;
 createIcons({
   icons: { Info, LayoutGrid, Minus, ServerCog, Settings, Square, UsersRound, X },
 });
-saveTheme(theme);
-saveLocale(locale);
+applyTheme(theme);
 renderPreferences();
-applyLocale();
+applyLocaleStatic();
 void initializeAutostart().catch((error: unknown) => showFault(`${t("startupFailed")}: ${String(error)}`));
 void listen<MainState>("aidget://main", (event) => render(event.payload));
 void listen("aidget://widgets-ready", () => mainStartup.synchronized());

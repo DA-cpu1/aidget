@@ -4,50 +4,8 @@ use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use crate::common::error::{Error, Result};
-use crate::common::utils::atomic_write;
-
-pub const SETTINGS_FILE: &str = "settings.toml";
-pub const DEFAULT_SCREENSHOT_RETENTION: usize = 30;
-pub const DEFAULT_TRASH_RETENTION: usize = 20;
-
-/// User-editable retention limits stored at the root of the aidget data directory.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Settings {
-    /// Maximum number of managed PNG files under `state/screenshots/`.
-    pub screenshot_retention: NonZeroUsize,
-    /// Maximum number of widget directories under `trash/`.
-    pub trash_retention: NonZeroUsize,
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Settings {
-            screenshot_retention: NonZeroUsize::new(DEFAULT_SCREENSHOT_RETENTION)
-                .expect("default screenshot retention is non-zero"),
-            trash_retention: NonZeroUsize::new(DEFAULT_TRASH_RETENTION)
-                .expect("default trash retention is non-zero"),
-        }
-    }
-}
-
-/// Create `settings.toml` with defaults when absent, then validate its contents.
-pub fn ensure(root: &Path) -> Result<()> {
-    let path = settings_path(root);
-    if !path.exists() {
-        atomic_write(&path, default_document().as_bytes())?;
-    }
-    load(root).map(|_| ())
-}
-
-/// Read and strictly validate `settings.toml`.
-pub fn load(root: &Path) -> Result<Settings> {
-    let bytes = fs::read(settings_path(root))?;
-    let text =
-        std::str::from_utf8(&bytes).map_err(|error| Error::Other(format!("toml: {error}")))?;
-    toml::from_str(text).map_err(|error| Error::Other(format!("toml: {error}")))
-}
+use crate::common::error::Result;
+use crate::settings;
 
 /// Remove the oldest managed PNGs until the screenshot directory fits `limit`.
 pub fn prune_screenshots(dir: &Path, limit: NonZeroUsize) -> Result<()> {
@@ -76,22 +34,8 @@ pub fn write_screenshot(
         fs::create_dir_all(parent)?;
     }
     fs::write(path, bytes)?;
-    let settings = load(root)?;
+    let settings = settings::load(root)?;
     prune_screenshots(screenshots_dir, settings.screenshot_retention)
-}
-
-fn settings_path(root: &Path) -> PathBuf {
-    root.join(SETTINGS_FILE)
-}
-
-fn default_document() -> String {
-    format!(
-        "# Maximum number of screenshots kept in state/screenshots.\n\
-screenshot_retention = {DEFAULT_SCREENSHOT_RETENTION}\n\
-\n\
-# Maximum number of deleted widgets kept in trash.\n\
-trash_retention = {DEFAULT_TRASH_RETENTION}\n"
-    )
 }
 
 enum RetentionKind {

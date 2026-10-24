@@ -12,6 +12,7 @@ use tauri::{
 
 use crate::common::error::{Error, Result};
 use crate::runtime::{main_startup::MainStartup, main_window_state};
+use crate::settings::{self, Language, Theme, TrayClickAction, UiPreferences};
 use crate::transport::origin;
 use crate::widgets::model::{
     validate_id, Board, DeletedWidgetSummary, DisplayInfo, WidgetDragMode, WidgetFrame,
@@ -58,13 +59,17 @@ pub struct WidgetSummary {
     pub created_at: u64,
 }
 
-/// Current widget inventory and application version shown by the main window.
+/// Current widget inventory, application version, and native preferences shown
+/// by the main window.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct MainState {
     pub widgets: Vec<WidgetSummary>,
     pub deleted_widgets: Vec<DeletedWidgetSummary>,
     pub version: String,
+    pub theme: Theme,
+    pub language: Language,
+    pub tray_click_action: TrayClickAction,
 }
 
 #[derive(Default)]
@@ -406,6 +411,7 @@ fn enabled_widget_ids(store: &Store, board: &Board, archived: &HashSet<String>) 
 
 /// List every valid widget, including widgets that are currently archived.
 pub fn main_widgets(store: &Store) -> Result<MainState> {
+    let preferences = settings::load(store.root())?.preferences();
     let board = store.load_board()?;
     let archived = main_window_state::archived_widgets(store.root(), &store.widget_ids()?)?;
     let mut widgets = Vec::new();
@@ -434,12 +440,43 @@ pub fn main_widgets(store: &Store) -> Result<MainState> {
         widgets,
         deleted_widgets: store.deleted_widgets()?,
         version: env!("CARGO_PKG_VERSION").to_string(),
+        theme: preferences.theme,
+        language: preferences.language,
+        tray_click_action: preferences.tray_click_action.effective(),
     })
 }
 
 pub fn main_payload(app: &AppHandle) -> Result<MainState> {
     let store = Store::new(app.state::<UiState>().root.lock().unwrap().clone());
     main_widgets(&store)
+}
+
+/// Persist UI preferences and apply the primary-click tray behavior without
+/// restarting. Linux rejects attempts to choose a non-menu tray action.
+pub fn set_preferences(app: &AppHandle, preferences: UiPreferences) -> Result<()> {
+    if cfg!(target_os = "linux") && preferences.tray_click_action != TrayClickAction::Menu {
+        return Err(Error::InvalidParams(
+            "changing the tray click action is unsupported on Linux".to_string(),
+        ));
+    }
+    let store = Store::new(app.state::<UiState>().root.lock().unwrap().clone());
+    let previous = settings::load(store.root())?.preferences();
+    let tray = app
+        .tray_by_id("aidget")
+        .ok_or_else(|| Error::Other("tray icon is not available".to_string()))?;
+    let previous_tray = previous.tray_click_action.effective();
+    let next_tray = preferences.tray_click_action.effective();
+    if previous_tray != next_tray {
+        tray.set_show_menu_on_left_click(next_tray == TrayClickAction::Menu)
+            .map_err(|error| Error::Other(format!("cannot update tray click action: {error}")))?;
+    }
+    if let Err(error) = settings::save_preferences(store.root(), preferences) {
+        if previous_tray != next_tray {
+            let _ = tray.set_show_menu_on_left_click(previous_tray == TrayClickAction::Menu);
+        }
+        return Err(error);
+    }
+    Ok(())
 }
 
 /// Enable or disable a desktop widget without changing its saved position.

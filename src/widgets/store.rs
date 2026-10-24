@@ -4,14 +4,14 @@ use std::path::{Component, Path, PathBuf};
 
 use crate::common::error::{Error, Result};
 use crate::common::utils::atomic_write;
+pub use crate::settings::SETTINGS_FILE;
+use crate::settings::{self, Settings};
 use crate::widgets::model::{
     validate_id, Board, BrokenWidget, DeletedWidgetSummary, WidgetAck, WidgetDocument,
     WidgetDragMode, WidgetFrame, WidgetListing, WidgetMeta, WidgetPermission, WidgetSummary,
     MAX_WIDGETS,
 };
-use crate::widgets::retention::{self, Settings};
-
-pub use crate::widgets::retention::SETTINGS_FILE;
+use crate::widgets::retention;
 
 pub const CONFIG_FILE: &str = "config.json";
 pub const HTML_FILE: &str = "index.html";
@@ -117,14 +117,14 @@ impl Store {
         ] {
             fs::create_dir_all(dir)?;
         }
-        retention::ensure(&self.root)?;
+        settings::ensure(&self.root)?;
         Ok(())
     }
 
     /// Read and validate the retention settings. A missing defaults file is
     /// created by [`Store::ensure_layout`].
     pub fn load_settings(&self) -> Result<Settings> {
-        retention::load(&self.root)
+        settings::load(&self.root)
     }
 
     /// Keep only the newest screenshot PNGs allowed by `settings.toml`.

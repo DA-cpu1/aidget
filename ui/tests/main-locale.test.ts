@@ -28,4 +28,17 @@ describe("main window locale", () => {
     expect(translate("zh", "integrationNoAgents")).toBe("没有检测到可接入此资源的 Agent。");
     expect(translate("en", "integrationRestart")).toContain("Restart");
   });
+
+  it("labels appearance, behavior, and tray click options", () => {
+    expect(translate("zh", "appearance")).toBe("外观");
+    expect(translate("zh", "behavior")).toBe("行为");
+    expect(translate("zh", "trayClickAction")).toBe("点击托盘图标");
+    expect(translate("zh", "trayMenu")).toBe("打开快捷菜单");
+    expect(translate("zh", "trayWindow")).toBe("打开主窗口");
+    expect(translate("en", "appearance")).toBe("Appearance");
+    expect(translate("en", "behavior")).toBe("Behavior");
+    expect(translate("en", "trayClickAction")).toBe("Click tray icon");
+    expect(translate("en", "trayMenu")).toBe("Open quick menu");
+    expect(translate("en", "trayWindow")).toBe("Open main window");
+  });
 });

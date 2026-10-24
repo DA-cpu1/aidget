@@ -5,6 +5,7 @@ use std::sync::Arc;
 use aidget::common::error::{Error, ErrorBody, Result};
 use aidget::interfaces::cli::{Cli, Command};
 use aidget::runtime::ui;
+use aidget::settings::{self, TrayClickAction, UiPreferences};
 use aidget::widgets::store::Store;
 use clap::error::ErrorKind;
 use clap::Parser;
@@ -132,7 +133,8 @@ fn run_ui(show_main_window: bool, detach: bool) -> Result<()> {
             widget_storage_remove,
             widget_storage_clear,
             integration_state,
-            set_agent_integration
+            set_agent_integration,
+            set_preferences
         ])
         .setup(move |app| {
             #[cfg(target_os = "macos")]
@@ -211,10 +213,12 @@ fn run_mcp() -> Result<()> {
         .block_on(aidget::interfaces::mcp::serve(store))
 }
 
-fn tray(app: &tauri::AppHandle) -> tauri::Result<()> {
+fn tray(app: &tauri::AppHandle) -> Result<()> {
     use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
-    use tauri::tray::TrayIconBuilder;
+    use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
+    let root = app.state::<ui::UiState>().root.lock().unwrap().clone();
+    let tray_click_action = settings::load(&root)?.tray_click_action.effective();
     let version = format!("版本 {}", app.package_info().version);
     let open = MenuItem::with_id(app, "open", "打开 aidget", true, None::<&str>)?;
     #[cfg(debug_assertions)]
@@ -238,7 +242,30 @@ fn tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     let builder = TrayIconBuilder::with_id("aidget")
         .icon(icon)
         .menu(&menu)
-        .show_menu_on_left_click(true)
+        .show_menu_on_left_click(tray_click_action == TrayClickAction::Menu)
+        .on_tray_icon_event(|tray, event| {
+            let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            else {
+                return;
+            };
+            let app = tray.app_handle();
+            let root = app.state::<ui::UiState>().root.lock().unwrap().clone();
+            match settings::load(&root) {
+                Ok(settings)
+                    if settings.tray_click_action.effective() == TrayClickAction::Window =>
+                {
+                    if let Err(error) = ui::show_main_now(app) {
+                        eprintln!("aidget: cannot open the main window: {error}");
+                    }
+                }
+                Ok(_) => {}
+                Err(error) => eprintln!("aidget: cannot read preferences: {error}"),
+            }
+        })
         .on_menu_event(|app, event| match event.id().as_ref() {
             "open" => {
                 if let Err(error) = ui::show_main_now(app) {
@@ -390,6 +417,18 @@ fn set_agent_integration(
     change: aidget::agents::integration::IntegrationChange,
 ) -> std::result::Result<aidget::agents::integration::IntegrationMutation, String> {
     aidget::agents::integration::set_agent_integration(change).map_err(|error| error.to_string())
+}
+
+/// Persist appearance and behavior preferences and apply the primary-click tray
+/// action to the running tray icon.
+#[tauri::command]
+async fn set_preferences(
+    window: tauri::WebviewWindow,
+    app: tauri::AppHandle,
+    preferences: UiPreferences,
+) -> std::result::Result<(), String> {
+    ui::require_main_window_label(window.label()).map_err(|error| error.to_string())?;
+    ui::set_preferences(&app, preferences).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
