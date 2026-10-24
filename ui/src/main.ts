@@ -41,7 +41,12 @@ import {
   type WidgetSortOrder,
   type WidgetSummary,
 } from "./main-model";
-import { translate, type Locale, type MessageKey } from "./main-locale";
+import {
+  formatAgentConfigurationFailure,
+  translate,
+  type Locale,
+  type MessageKey,
+} from "./main-locale";
 import { createMainStartup } from "./main-startup";
 import { createPreviewRefresh } from "./preview-refresh";
 import { applyTheme, resolvedLocale, type Theme } from "./main-preferences";
@@ -137,7 +142,6 @@ let integrationRequested = false;
 let integrationFailed = false;
 let integrationBusy = false;
 let integrationProblems: AgentProblem[] = [];
-let integrationFeedback = "";
 let pendingPurge: DeletedWidgetView | undefined;
 let purgeTimer: number | undefined;
 let previewRefreshActive = false;
@@ -273,13 +277,27 @@ function ensureIntegrationInfo() {
 
 function renderIntegrationStatus() {
   const message = integrationProblems.length
-    ? `${t("integrationWriteFailed")}: ${integrationProblems[0].message}`
-    : integrationFeedback;
+    ? integrationFailureMessage(
+        integrationProblems.map((problem) => problem.agentId),
+        integrationProblems.map((problem) => problem.message),
+      )
+    : "";
   integrationStatuses.forEach((status) => {
     status.textContent = message;
     status.classList.toggle("is-error", integrationProblems.length > 0);
     status.hidden = message.length === 0;
   });
+}
+
+function integrationFailureMessage(agentIds: string[], details: string[]) {
+  const namesById = new Map(
+    integrationInfo?.agents.map((agent) => [agent.id, agent.name]) ?? [],
+  );
+  return formatAgentConfigurationFailure(
+    resolvedLocale(locale),
+    agentIds.map((id) => namesById.get(id) ?? id),
+    details,
+  );
 }
 
 async function changeAgentIntegration(
@@ -290,7 +308,6 @@ async function changeAgentIntegration(
   if (integrationBusy || agentIds.length === 0) return;
   integrationBusy = true;
   integrationProblems = [];
-  integrationFeedback = "";
   renderIntegration();
   fault.hidden = true;
   try {
@@ -299,9 +316,8 @@ async function changeAgentIntegration(
     });
     integrationInfo = result.state;
     integrationProblems = result.problems;
-    integrationFeedback = result.problems.length ? "" : t("integrationRestart");
   } catch (error) {
-    showFault(`${t("integrationWriteFailed")}: ${String(error)}`);
+    showFault(integrationFailureMessage(agentIds, [String(error)]));
   } finally {
     integrationBusy = false;
     renderIntegration();
@@ -833,7 +849,6 @@ document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach((button) => 
       integrationFailed = false;
       integrationInfo = undefined;
       integrationProblems = [];
-      integrationFeedback = "";
     }
     fault.hidden = true;
     renderPage();

@@ -29,7 +29,7 @@ const messages = {
     appearance: "Appearance",
     behavior: "Behavior",
     theme: "Color theme",
-    system: "Follow system",
+    system: "System",
     light: "Light",
     dark: "Dark",
     language: "Language",
@@ -58,12 +58,14 @@ const messages = {
     mcpAndSkillsDescription: "Connect aidget to an Agent through an MCP server and the packaged Agent skill.",
     mcpStepTitle: "Step 1: Connect MCP Service",
     skillsStepTitle: "Step 2: Install Agent Skill",
+    chatStepTitle: "Step 3: Chat with an Agent",
+    chatStepDescription: "Start a connected Agent and enter /aidget to begin.",
     generalTitle: "General",
     aboutTitle: "About aidget",
     agentAll: "All",
     integrationNoAgents: "No detected Agent can receive this resource.",
-    integrationWriteFailed: "Could not update one or more Agents",
-    integrationRestart: "Restart the Agent for the change to take effect.",
+    integrationAgentWriteFailed: "Could not configure {agent}: {error}",
+    integrationMultipleAgentsWriteFailed: "Could not configure multiple Agents: {error}",
     installFor: "Install for",
     removeFrom: "Remove from",
     integrationLoadFailed: "Could not load integration details",
@@ -132,12 +134,14 @@ const messages = {
     mcpAndSkillsDescription: "通过 MCP 服务和 Agent 技能，将 aidget 接入 Agent。",
     mcpStepTitle: "第一步：接入 MCP 服务",
     skillsStepTitle: "第二步：接入 Agent Skill",
+    chatStepTitle: "第三步：在 Agent 中对话",
+    chatStepDescription: "启动已接入的 Agent，输入 /aidget 指令开始对话。",
     generalTitle: "常规",
     aboutTitle: "关于 aidget",
     agentAll: "全部",
     integrationNoAgents: "没有检测到可接入此资源的 Agent。",
-    integrationWriteFailed: "一个或多个 Agent 更新失败",
-    integrationRestart: "重启 Agent 后生效。",
+    integrationAgentWriteFailed: "{agent} 配置失败：{error}",
+    integrationMultipleAgentsWriteFailed: "多个 Agent 配置失败：{error}",
     installFor: "为以下 Agent 安装：",
     removeFrom: "从以下 Agent 移除：",
     integrationLoadFailed: "无法读取接入信息",
@@ -160,4 +164,28 @@ export function systemLocale(languages: readonly string[]): "en" | "zh" {
 
 export function translate(locale: "en" | "zh", key: MessageKey) {
   return messages[locale][key];
+}
+
+/**
+ * Render a localized configuration failure for one or several Agents.
+ */
+export function formatAgentConfigurationFailure(
+  locale: "en" | "zh",
+  agentNames: readonly string[],
+  details: readonly string[],
+) {
+  const uniqueNames = [...new Set(agentNames)];
+  if (uniqueNames.length === 0) {
+    throw new Error("at least one Agent is required");
+  }
+  const separator = locale === "zh" ? "；" : "; ";
+  const template = translate(
+    locale,
+    uniqueNames.length === 1
+      ? "integrationAgentWriteFailed"
+      : "integrationMultipleAgentsWriteFailed",
+  );
+  return template
+    .replace("{agent}", uniqueNames[0])
+    .replace("{error}", details.join(separator));
 }
