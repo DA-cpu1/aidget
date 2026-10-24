@@ -1,7 +1,8 @@
 use std::fs;
 
 use aidget::settings::{
-    ensure, load, save_preferences, Language, Theme, TrayClickAction, UiPreferences, SETTINGS_FILE,
+    ensure, load, save_preferences, Language, MainPage, Theme, TrayClickAction, UiPreferences,
+    SETTINGS_FILE,
 };
 use tempfile::TempDir;
 
@@ -23,6 +24,7 @@ fn settings_are_created_with_retention_and_preference_defaults() {
     assert_eq!(settings.theme, Theme::System);
     assert_eq!(settings.language, Language::System);
     assert_eq!(settings.tray_click_action, TrayClickAction::Window);
+    assert_eq!(settings.last_page, MainPage::Integrations);
 
     let document = fs::read_to_string(root.join(SETTINGS_FILE)).unwrap();
     assert!(document.contains("screenshot_retention = 30"));
@@ -30,6 +32,7 @@ fn settings_are_created_with_retention_and_preference_defaults() {
     assert!(document.contains("theme = \"system\""));
     assert!(document.contains("language = \"system\""));
     assert!(document.contains("tray_click_action = \"window\""));
+    assert!(document.contains("last_page = \"integrations\""));
 }
 
 #[test]
@@ -54,6 +57,7 @@ trash_retention = 7\n";
     assert!(document.contains("theme = \"system\""));
     assert!(document.contains("language = \"system\""));
     assert!(document.contains("tray_click_action = \"window\""));
+    assert!(document.contains("last_page = \"integrations\""));
     drop(dir);
 }
 
@@ -79,6 +83,7 @@ tray_click_action = \"window\"\n",
         theme: Theme::Dark,
         language: Language::ZhCn,
         tray_click_action: TrayClickAction::Menu,
+        last_page: MainPage::About,
     };
     save_preferences(&root, preferences).unwrap();
 
@@ -90,6 +95,7 @@ tray_click_action = \"window\"\n",
     assert!(document.contains("theme = \"dark\""));
     assert!(document.contains("language = \"zh-CN\""));
     assert!(document.contains("tray_click_action = \"menu\""));
+    assert!(document.contains("last_page = \"about\""));
     assert_eq!(load(&root).unwrap().preferences(), preferences);
     drop(dir);
 }
@@ -105,6 +111,7 @@ fn settings_reject_invalid_retention_or_preference_shapes() {
         "screenshot_retention = 30\ntrash_retention = 20\ntheme = \"sepia\"\n",
         "screenshot_retention = 30\ntrash_retention = 20\nlanguage = \"fr\"\n",
         "screenshot_retention = 30\ntrash_retention = 20\ntray_click_action = \"popup\"\n",
+        "screenshot_retention = 30\ntrash_retention = 20\nlast_page = \"settings\"\n",
         "not = [valid",
     ] {
         fs::write(&path, invalid).unwrap();

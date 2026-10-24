@@ -12,6 +12,35 @@ pub const SETTINGS_FILE: &str = "settings.toml";
 pub const DEFAULT_SCREENSHOT_RETENTION: usize = 30;
 pub const DEFAULT_TRASH_RETENTION: usize = 20;
 
+/// Main-window navigation destinations persisted between launches.
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum MainPage {
+    /// Installed desktop widgets.
+    LocalWidgets,
+    /// Community widget directory.
+    CommunityWidgets,
+    /// Agent MCP and skill integrations.
+    #[default]
+    Integrations,
+    /// General preferences.
+    General,
+    /// Application information.
+    About,
+}
+
+impl MainPage {
+    fn as_str(self) -> &'static str {
+        match self {
+            MainPage::LocalWidgets => "local-widgets",
+            MainPage::CommunityWidgets => "community-widgets",
+            MainPage::Integrations => "integrations",
+            MainPage::General => "general",
+            MainPage::About => "about",
+        }
+    }
+}
+
 /// Selected UI color theme.
 #[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -100,6 +129,8 @@ pub struct UiPreferences {
     pub language: Language,
     /// Primary-click behavior for the tray icon.
     pub tray_click_action: TrayClickAction,
+    /// Most recently opened main-window destination.
+    pub last_page: MainPage,
 }
 
 /// User-editable settings stored at the root of the aidget data directory.
@@ -119,6 +150,9 @@ pub struct Settings {
     /// Primary-click behavior for the tray icon.
     #[serde(default)]
     pub tray_click_action: TrayClickAction,
+    /// Most recently opened main-window destination.
+    #[serde(default)]
+    pub last_page: MainPage,
 }
 
 impl Default for Settings {
@@ -131,6 +165,7 @@ impl Default for Settings {
             theme: Theme::default(),
             language: Language::default(),
             tray_click_action: TrayClickAction::default(),
+            last_page: MainPage::default(),
         }
     }
 }
@@ -142,6 +177,7 @@ impl Settings {
             theme: self.theme,
             language: self.language,
             tray_click_action: self.tray_click_action,
+            last_page: self.last_page,
         }
     }
 }
@@ -167,6 +203,7 @@ pub fn ensure(root: &Path) -> Result<()> {
         "tray_click_action",
         TrayClickAction::Window.as_str(),
     );
+    insert_missing(&mut document, "last_page", MainPage::Integrations.as_str());
     let next = document.to_string();
     if next != text {
         atomic_write(&path, next.as_bytes())?;
@@ -182,7 +219,7 @@ pub fn load(root: &Path) -> Result<Settings> {
     toml::from_str(text).map_err(|error| Error::Other(format!("toml: {error}")))
 }
 
-/// Update only the three UI preferences while preserving retention settings
+/// Update only the UI preferences while preserving retention settings
 /// and the rest of the TOML document.
 pub fn save_preferences(root: &Path, preferences: UiPreferences) -> Result<()> {
     load(root)?;
@@ -194,6 +231,7 @@ pub fn save_preferences(root: &Path, preferences: UiPreferences) -> Result<()> {
     document["theme"] = value(preferences.theme.as_str());
     document["language"] = value(preferences.language.as_str());
     document["tray_click_action"] = value(preferences.tray_click_action.as_str());
+    document["last_page"] = value(preferences.last_page.as_str());
     atomic_write(&path, document.to_string().as_bytes())
 }
 
@@ -222,6 +260,9 @@ theme = \"system\"\n\
 language = \"system\"\n\
 \n\
 # Primary tray click: window or menu.\n\
-tray_click_action = \"window\"\n"
+tray_click_action = \"window\"\n\
+\n\
+# Main-window destination restored on launch.\n\
+last_page = \"integrations\"\n"
     )
 }

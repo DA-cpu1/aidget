@@ -28,14 +28,14 @@
         <nav class="navigation" aria-label="Main navigation">
           <div class="nav-group">
             <p class="nav-heading" data-message="integrations"></p>
-            <button class="nav-item" type="button" data-page="integrations">
+            <button class="nav-item is-active" type="button" data-page="integrations" aria-current="page">
               <span class="nav-icon" aria-hidden="true"><i data-lucide="server-cog"></i></span>
               <span data-message="mcpAndSkills"></span>
             </button>
           </div>
           <div class="nav-group">
             <p class="nav-heading" data-message="widgetsGroup"></p>
-            <button class="nav-item is-active" type="button" data-page="local-widgets" aria-current="page">
+            <button class="nav-item" type="button" data-page="local-widgets">
               <span class="nav-icon" aria-hidden="true"><i data-lucide="layout-grid"></i></span>
               <span data-message="localWidgets"></span>
             </button>
@@ -67,7 +67,7 @@
           </div>
         </header>
 
-        <section class="page-content" data-view="local-widgets" aria-labelledby="local-widgets-title">
+        <section class="page-content" data-view="local-widgets" aria-labelledby="local-widgets-title" hidden>
           <h1 class="visually-hidden" id="local-widgets-title" data-message="localWidgetsTitle"></h1>
           <div class="widget-filters" role="group" data-filter-options>
             <div class="segmented-control" data-widget-filter-control>
@@ -113,7 +113,6 @@
           class="page-content integration-page"
           data-view="integrations"
           aria-labelledby="integrations-title"
-          hidden
         >
           <div class="page-intro">
             <h1 id="integrations-title" data-message="mcpAndSkillsTitle"></h1>

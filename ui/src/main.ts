@@ -35,6 +35,7 @@ import {
   sortedActiveWidgets,
   sortedDeletedWidgets,
   type DeletedWidgetSummary,
+  type MainPage,
   type MainState,
   type TrayClickAction,
   type WidgetFilter,
@@ -75,14 +76,10 @@ interface DeletedWidgetView {
   trashName: string;
 }
 
-type PreferencesSnapshot = Pick<MainState, "theme" | "language" | "trayClickAction">;
-
-type Page =
-  | "local-widgets"
-  | "community-widgets"
-  | "integrations"
-  | "general"
-  | "about";
+type PreferencesSnapshot = Pick<
+  MainState,
+  "theme" | "language" | "trayClickAction" | "lastPage"
+>;
 
 const grid = document.querySelector<HTMLElement>("[data-grid]")!;
 const deletedGrid = document.querySelector<HTMLElement>("[data-deleted-grid]")!;
@@ -121,7 +118,7 @@ const platform = /Macintosh|Mac OS X/.test(navigator.userAgent)
     ? "windows"
     : "linux";
 document.body.dataset.platform = platform;
-const pages: Record<Page, { group: MessageKey; title: MessageKey }> = {
+const pages: Record<MainPage, { group: MessageKey; title: MessageKey }> = {
   "local-widgets": { group: "widgetsGroup", title: "localWidgets" },
   "community-widgets": { group: "widgetsGroup", title: "communityWidgets" },
   integrations: { group: "integrations", title: "mcpAndSkills" },
@@ -130,12 +127,13 @@ const pages: Record<Page, { group: MessageKey; title: MessageKey }> = {
 };
 
 let state: MainState | undefined;
-let page: Page = "local-widgets";
+let page: MainPage = "integrations";
 let filter: WidgetFilter = "all";
 let theme: Theme = "system";
 let locale: Locale = "system";
 let trayClickAction: TrayClickAction = platform === "linux" ? "menu" : "window";
 let preferencesBusy = false;
+let preferenceWrites: Promise<void> = Promise.resolve();
 let widgetSort: WidgetSortOrder = "newest";
 let integrationInfo: IntegrationInfo | undefined;
 let integrationRequested = false;
@@ -377,7 +375,7 @@ function renderPreferences() {
 }
 
 function currentPreferences(): PreferencesSnapshot {
-  return { theme, language: locale, trayClickAction };
+  return { theme, language: locale, trayClickAction, lastPage: page };
 }
 
 function applyPreferences(next: PreferencesSnapshot) {
@@ -386,25 +384,56 @@ function applyPreferences(next: PreferencesSnapshot) {
   locale = next.language;
   trayClickAction = next.trayClickAction;
   applyTheme(theme);
-  if (state) state = { ...state, ...next };
+  if (state) {
+    state = {
+      ...state,
+      theme: next.theme,
+      language: next.language,
+      trayClickAction: next.trayClickAction,
+    };
+  }
   renderPreferences();
   if (languageChanged) applyLocale();
   else renderPage();
 }
 
 async function persistPreferences(previous: PreferencesSnapshot) {
+  const next = currentPreferences();
   preferencesBusy = true;
   fault.hidden = true;
   renderPreferences();
   try {
-    await invoke("set_preferences", { preferences: currentPreferences() });
+    await queuePreferenceWrite(async () => {
+      try {
+        await invoke<void>("set_preferences", { preferences: next });
+      } catch (error) {
+        applyPreferences(previous);
+        throw error;
+      }
+    });
   } catch (error) {
-    applyPreferences(previous);
     showFault(`${t("settingFailed")}: ${String(error)}`);
   } finally {
     if (state) state = { ...state, ...currentPreferences() };
     preferencesBusy = false;
     renderPreferences();
+  }
+}
+
+function queuePreferenceWrite(write: () => Promise<void>) {
+  const queued = preferenceWrites.then(write);
+  preferenceWrites = queued.catch(() => {});
+  return queued;
+}
+
+async function rememberPage() {
+  fault.hidden = true;
+  try {
+    await queuePreferenceWrite(() =>
+      invoke<void>("set_preferences", { preferences: currentPreferences() }),
+    );
+  } catch (error) {
+    showFault(`${t("settingFailed")}: ${String(error)}`);
   }
 }
 
@@ -687,6 +716,7 @@ function syncPreviewRefresh(immediate = false) {
 
 function render(next: MainState) {
   const initial = state === undefined;
+  if (initial) page = next.lastPage;
   const languageChanged = next.language !== locale;
   if (!preferencesBusy) {
     theme = next.theme;
@@ -843,7 +873,7 @@ autoStart.addEventListener("click", async () => {
 document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach((button) => {
   button.addEventListener("click", () => {
     resetPurgeConfirmation();
-    page = button.dataset.page as Page;
+    page = button.dataset.page as MainPage;
     if (page === "integrations") {
       integrationRequested = false;
       integrationFailed = false;
@@ -853,6 +883,7 @@ document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach((button) => 
     fault.hidden = true;
     renderPage();
     syncPreviewRefresh(true);
+    void rememberPage();
   });
 });
 

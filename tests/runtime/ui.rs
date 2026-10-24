@@ -5,7 +5,9 @@ use aidget::runtime::ui::{
     cached_preview, content_token, html_widget_surface, is_relevant, main_widgets, place_frame,
     record_revision, require_main_window_label, retain_widget_revisions, MainState, WidgetSummary,
 };
-use aidget::settings::{Language, Theme, TrayClickAction};
+use aidget::settings::{
+    save_preferences, Language, MainPage, Theme, TrayClickAction, UiPreferences,
+};
 use aidget::widgets::model::{DeletedWidgetSummary, WidgetFrame, WidgetSurface};
 use aidget::widgets::store::{Store, WidgetEdit, CONFIG_FILE};
 use tempfile::TempDir;
@@ -104,6 +106,24 @@ fn main_window_lists_all_widgets_and_marks_enabled_state() {
     assert!(!state.widgets[1].enabled);
     assert_eq!(state.widgets[1].width, 360.0);
     assert_eq!(state.version, env!("CARGO_PKG_VERSION"));
+}
+
+#[test]
+fn main_state_restores_last_page_from_settings() {
+    let dir = TempDir::new().unwrap();
+    let store = Store::new(dir.path());
+    store.ensure_layout().unwrap();
+
+    save_preferences(
+        store.root(),
+        UiPreferences {
+            last_page: MainPage::About,
+            ..UiPreferences::default()
+        },
+    )
+    .unwrap();
+
+    assert_eq!(main_widgets(&store).unwrap().last_page, MainPage::About);
 }
 
 #[test]
@@ -287,6 +307,7 @@ fn main_state_exposes_widget_metadata_in_camel_case() {
         theme: Theme::Dark,
         language: Language::ZhCn,
         tray_click_action: TrayClickAction::Window,
+        last_page: MainPage::Integrations,
     })
     .unwrap();
 
@@ -300,6 +321,7 @@ fn main_state_exposes_widget_metadata_in_camel_case() {
     assert_eq!(value["theme"], "dark");
     assert_eq!(value["language"], "zh-CN");
     assert_eq!(value["trayClickAction"], "window");
+    assert_eq!(value["lastPage"], "integrations");
 }
 
 #[test]

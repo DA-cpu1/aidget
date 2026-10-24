@@ -12,7 +12,7 @@ use tauri::{
 
 use crate::common::error::{Error, Result};
 use crate::runtime::{main_startup::MainStartup, main_window_state};
-use crate::settings::{self, Language, Theme, TrayClickAction, UiPreferences};
+use crate::settings::{self, Language, MainPage, Theme, TrayClickAction, UiPreferences};
 use crate::transport::origin;
 use crate::widgets::model::{
     validate_id, Board, DeletedWidgetSummary, DisplayInfo, WidgetDragMode, WidgetFrame,
@@ -70,6 +70,7 @@ pub struct MainState {
     pub theme: Theme,
     pub language: Language,
     pub tray_click_action: TrayClickAction,
+    pub last_page: MainPage,
 }
 
 #[derive(Default)]
@@ -443,6 +444,7 @@ pub fn main_widgets(store: &Store) -> Result<MainState> {
         theme: preferences.theme,
         language: preferences.language,
         tray_click_action: preferences.tray_click_action.effective(),
+        last_page: preferences.last_page,
     })
 }
 

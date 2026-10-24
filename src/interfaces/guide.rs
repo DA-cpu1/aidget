@@ -49,7 +49,8 @@ pub fn payload() -> Value {
             "defaults": {
                 "theme": "system",
                 "language": "system",
-                "tray_click_action": "window"
+                "tray_click_action": "window",
+                "last_page": "integrations"
             }
         },
         "screenshot": "scale is output pixels per layout point, so it does not depend on the display's pixel density; the default 1 renders one pixel per point. Pass 2 only when detail matters. Capture waits for the current iframe load and then up to 500ms for window.aidget.ready(). macOS captures through WKWebView, Windows through the WebView2 devtools protocol, and Linux through WebKitGTK.",
@@ -85,7 +86,7 @@ pub fn print(json_output: bool) -> Result<()> {
     println!("position  user-owned; drags bump boardRevision, content writes never move");
     println!("limits    12 widgets, 256 KB per patch");
     println!("retention settings.toml defaults to 30 screenshots and 20 trash directories");
-    println!("prefs    settings.toml stores theme, language, and tray-click behavior");
+    println!("prefs    settings.toml stores theme, language, tray-click behavior, and last page");
     println!("errors    ui_not_running not_found invalid_id invalid_params");
     println!("          revision_conflict region_not_found region_ambiguous io_error timeout");
     println!("\nrun `aidget guide --json` for the machine-readable version");

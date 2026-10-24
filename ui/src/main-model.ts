@@ -29,8 +29,15 @@ export interface MainState {
   theme: Theme;
   language: Locale;
   trayClickAction: TrayClickAction;
+  lastPage: MainPage;
 }
 
+export type MainPage =
+  | "local-widgets"
+  | "community-widgets"
+  | "integrations"
+  | "general"
+  | "about";
 export type WidgetFilter = "all" | "enabled" | "disabled" | "deleted";
 export type WidgetSortOrder = "newest" | "oldest";
 export type TrayClickAction = "menu" | "window";
