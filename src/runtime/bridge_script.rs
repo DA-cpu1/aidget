@@ -7,7 +7,7 @@
 //! Tauri internals.
 
 /// Injected with `initialization_script_for_all_frames`.
-pub const WIDGET_API: &str = include_str!("../../ui/src/widget-api.js");
+pub const WIDGET_API: &str = include_str!("../../ui/src/widget/api.js");
 
 /// Host-owned pointer bridge, also installed when a widget's own scripts are disabled.
-pub const WIDGET_DRAG: &str = include_str!("../../ui/src/widget-drag.js");
+pub const WIDGET_DRAG: &str = include_str!("../../ui/src/widget/drag.js");

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { createDragSession, parseDragSignal } from "../src/widget-drag-host";
-import type { WidgetState } from "../src/widget-url";
+import { createDragSession, parseDragSignal } from "../../src/widget/drag-host";
+import type { WidgetState } from "../../src/widget/url";
 
 describe("drag message identity", () => {
   const frame = {} as Window;

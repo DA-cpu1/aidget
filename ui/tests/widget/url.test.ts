@@ -11,7 +11,7 @@ import {
   sandboxAttribute,
   sandboxTokens,
   shouldReload,
-} from "../src/widget-url";
+} from "../../src/widget/url";
 
 describe("sandbox", () => {
   it("permits the trusted drag bridge while CSP disables static widget scripts", () => {

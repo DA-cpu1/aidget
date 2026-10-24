@@ -1,4 +1,4 @@
-import type { WidgetState } from "./widget-url";
+import type { WidgetState } from "./url";
 
 /** One gesture from the current sandboxed widget document. */
 export interface DragSignal {

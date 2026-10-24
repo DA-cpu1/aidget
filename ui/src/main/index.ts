@@ -18,7 +18,7 @@ import {
   UsersRound,
   X,
 } from "lucide";
-import brandIcon from "../../icons/icon.png";
+import brandIcon from "../../../icons/icon.png";
 import { renderAgentStrip } from "./agent-controls";
 import {
   mcpCommandLine,
@@ -41,16 +41,16 @@ import {
   type WidgetFilter,
   type WidgetSortOrder,
   type WidgetSummary,
-} from "./main-model";
+} from "./model";
 import {
   formatAgentConfigurationFailure,
   translate,
   type Locale,
   type MessageKey,
-} from "./main-locale";
-import { createMainStartup } from "./main-startup";
+} from "./locale";
+import { createMainStartup } from "./startup";
 import { createPreviewRefresh } from "./preview-refresh";
-import { applyTheme, resolvedLocale, type Theme } from "./main-preferences";
+import { applyTheme, resolvedLocale, type Theme } from "./preferences";
 import { createSegmentedControl } from "./segmented-control";
 import { renderMiddleEllipsis } from "./text-ellipsis";
 

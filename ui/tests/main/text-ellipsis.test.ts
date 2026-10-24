@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { middleEllipsis } from "../src/text-ellipsis";
+import { middleEllipsis } from "../../src/main/text-ellipsis";
 
 describe("middle ellipsis", () => {
   it("keeps the original text when it fits", () => {

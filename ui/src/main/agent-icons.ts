@@ -1,4 +1,4 @@
-const files = import.meta.glob("../assets/agent-icons/*.{svg,png}", {
+const files = import.meta.glob("../../assets/agent-icons/*.{svg,png}", {
   eager: true,
   query: "?url",
   import: "default",

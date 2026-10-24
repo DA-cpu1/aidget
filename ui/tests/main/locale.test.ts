@@ -3,7 +3,7 @@ import {
   formatAgentConfigurationFailure,
   systemLocale,
   translate,
-} from "../src/main-locale";
+} from "../../src/main/locale";
 
 describe("main window locale", () => {
   it("follows simplified Chinese when any system language is Chinese", () => {

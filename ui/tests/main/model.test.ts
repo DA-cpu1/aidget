@@ -9,7 +9,7 @@ import {
   sortedDeletedWidgets,
   type MainState,
   type WidgetSummary,
-} from "../src/main-model";
+} from "../../src/main/model";
 
 const base: WidgetSummary = {
   id: "todo",

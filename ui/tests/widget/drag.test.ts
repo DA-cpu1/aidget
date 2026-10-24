@@ -24,7 +24,7 @@ function install() {
     innerWidth: 1024,
     innerHeight: 768,
   };
-  runInNewContext(readFileSync(new URL("../src/widget-drag.js", import.meta.url), "utf8"), {
+  runInNewContext(readFileSync(new URL("../../src/widget/drag.js", import.meta.url), "utf8"), {
     window: sandboxWindow, document, location: window.location,
     Element: window.Element, HTMLElement: window.HTMLElement, URLSearchParams,
     setTimeout, clearTimeout,

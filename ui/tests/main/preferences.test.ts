@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { applyTheme, resolvedLocale } from "../src/main-preferences";
+import { applyTheme, resolvedLocale } from "../../src/main/preferences";
 
 const root = { dataset: {} as Record<string, string>, style: { colorScheme: "" }, lang: "" };
 

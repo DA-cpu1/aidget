@@ -3,7 +3,7 @@ import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
 const SOURCE = readFileSync(
-  new URL("../src/widget-api.js", import.meta.url),
+  new URL("../../src/widget/api.js", import.meta.url),
   "utf8",
 );
 

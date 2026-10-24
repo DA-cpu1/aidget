@@ -11,7 +11,7 @@ import {
   HOST_SOURCE,
   SERVED_METHODS,
   WIDGET_SOURCE,
-} from "../src/widget-bridge";
+} from "../../src/widget/bridge";
 
 const frameWindow = {} as Window;
 const otherWindow = {} as Window;

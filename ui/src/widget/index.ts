@@ -1,7 +1,7 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { createDragSession, parseDragSignal, type DragSignal } from "./widget-drag-host";
+import { createDragSession, parseDragSignal, type DragSignal } from "./drag-host";
 import {
   contentOrigin,
   widgetUrl,
@@ -12,7 +12,7 @@ import {
   sandboxAttribute,
   shouldReload,
   type WidgetState,
-} from "./widget-url";
+} from "./url";
 import {
   errorMessage,
   failureOf,
@@ -21,7 +21,7 @@ import {
   permissionsMessage,
   resultMessage,
   routeRequest,
-} from "./widget-bridge";
+} from "./bridge";
 
 const chrome = document.querySelector<HTMLElement>(".widget-chrome")!;
 const frame = document.querySelector<HTMLIFrameElement>("iframe.widget")!;

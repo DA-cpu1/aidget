@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { afterNextPaint, createMainStartup } from "../src/main-startup";
+import { afterNextPaint, createMainStartup } from "../../src/main/startup";
 
 describe("main window startup", () => {
   it("waits for two animation frames", async () => {

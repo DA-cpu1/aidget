@@ -1,5 +1,5 @@
-import type { Locale } from "./main-locale";
-import type { Theme } from "./main-preferences";
+import type { Locale } from "./locale";
+import type { Theme } from "./preferences";
 
 export interface WidgetSummary {
   id: string;

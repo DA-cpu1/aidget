@@ -5,7 +5,7 @@ import {
   integrationAgents,
   mcpCommandLine,
   type IntegrationInfo,
-} from "../src/integration";
+} from "../../src/main/integration";
 
 const info: IntegrationInfo = {
   mcpCommand: "/Applications/aidget.app/Contents/MacOS/aidget",

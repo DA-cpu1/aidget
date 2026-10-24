@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createPreviewRefresh,
   PREVIEW_REFRESH_MS,
-} from "../src/preview-refresh";
+} from "../../src/main/preview-refresh";
 
 afterEach(() => {
   vi.useRealTimers();

@@ -1,4 +1,4 @@
-import { systemLocale, type Locale } from "./main-locale";
+import { systemLocale, type Locale } from "./locale";
 
 export type Theme = "system" | "light" | "dark";
 

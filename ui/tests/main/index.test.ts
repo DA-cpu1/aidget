@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { MainState } from "../src/main-model";
+import type { MainState } from "../../src/main/model";
 
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
@@ -63,7 +63,7 @@ function prepareDocument() {
   const bodyEnd = mainHtml.lastIndexOf("</body>");
   document.body.innerHTML = mainHtml
     .slice(bodyStart, bodyEnd)
-    .replace('<script type="module" src="./src/main.ts"></script>', "");
+    .replace('<script type="module" src="./src/main/index.ts"></script>', "");
   vi.stubGlobal("ResizeObserver", class {
     observe() {}
   });
@@ -80,7 +80,7 @@ async function loadMain(initial: MainState) {
     if (command === "set_preferences") return Promise.resolve();
     return Promise.resolve(args);
   });
-  await import("../src/main");
+  await import("../../src/main");
   await vi.waitFor(() => {
     expect(document.querySelector(`[data-page="${initial.lastPage}"]`)?.classList)
       .toContain("is-active");
@@ -135,7 +135,7 @@ describe("main window navigation", () => {
       return Promise.resolve();
     });
 
-    await import("../src/main");
+    await import("../../src/main");
     await vi.waitFor(() => {
       expect(pageButton("integrations").classList).toContain("is-active");
     });
