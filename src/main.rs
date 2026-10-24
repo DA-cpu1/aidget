@@ -107,6 +107,7 @@ fn run_ui(show_main_window: bool, detach: bool) -> Result<()> {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec!["ui", "--no-main-window"]),
         ))
+        .plugin(tauri_plugin_opener::init())
         .register_uri_scheme_protocol("aidget", move |ctx, request| {
             aidget::transport::server::protocol::handle(&ctx, request, &store_for_protocol)
         })

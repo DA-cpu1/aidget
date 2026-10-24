@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   Archive,
   ArrowUpDown,
@@ -81,6 +82,7 @@ type PreferencesSnapshot = Pick<
   "theme" | "language" | "trayClickAction" | "lastPage"
 >;
 
+const GITHUB_REPOSITORY_URL = "https://github.com/aidget-ai/aidget";
 const grid = document.querySelector<HTMLElement>("[data-grid]")!;
 const deletedGrid = document.querySelector<HTMLElement>("[data-deleted-grid]")!;
 const empty = document.querySelector<HTMLElement>("[data-empty]")!;
@@ -99,6 +101,7 @@ const widgetSortButton = document.querySelector<HTMLButtonElement>("[data-widget
 const widgetSortLabel = widgetSortButton.querySelector<HTMLElement>("[data-sort-label]")!;
 const brandMark = document.querySelector<HTMLImageElement>("[data-brand-icon]")!;
 const version = document.querySelector<HTMLElement>("[data-version]")!;
+const githubButton = document.querySelector<HTMLButtonElement>("[data-github]")!;
 const autoStart = document.querySelector<HTMLButtonElement>("[data-autostart]")!;
 const language = document.querySelector<HTMLSelectElement>("[data-language]")!;
 const mcpCommandOutput = document.querySelector<HTMLElement>("[data-mcp-command]")!;
@@ -108,6 +111,7 @@ const agentStrips = {
   mcp: document.querySelector<HTMLElement>('[data-agent-strip="mcp"]')!,
   skills: document.querySelector<HTMLElement>('[data-agent-strip="skills"]')!,
 };
+const integrationPage = document.querySelector<HTMLElement>('[data-view="integrations"]')!;
 const integrationStatuses = document.querySelectorAll<HTMLElement>(".integration-status");
 const views = new Map<string, WidgetView>();
 const deletedViews = new Map<string, DeletedWidgetView>();
@@ -228,6 +232,7 @@ function renderDescription() {
 }
 
 function renderIntegration() {
+  integrationPage.setAttribute("aria-busy", String(integrationBusy));
   if (!integrationInfo) {
     const message = t(integrationFailed ? "integrationLoadFailed" : "loading");
     mcpCommandOutput.textContent = message;
@@ -868,6 +873,13 @@ autoStart.addEventListener("click", async () => {
   } finally {
     autoStart.disabled = false;
   }
+});
+
+githubButton.addEventListener("click", () => {
+  fault.hidden = true;
+  void openUrl(GITHUB_REPOSITORY_URL).catch((error: unknown) => {
+    showFault(`${t("openLinkFailed")}: ${String(error)}`);
+  });
 });
 
 document.querySelectorAll<HTMLButtonElement>("[data-page]").forEach((button) => {

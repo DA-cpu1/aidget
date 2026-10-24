@@ -2,15 +2,18 @@
 
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { IntegrationInfo } from "../../src/main/integration";
 import type { MainState } from "../../src/main/model";
 
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
   listen: vi.fn(async () => () => {}),
+  openUrl: vi.fn(async () => {}),
 }));
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mocks.invoke }));
 vi.mock("@tauri-apps/api/event", () => ({ listen: mocks.listen }));
+vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl: mocks.openUrl }));
 vi.mock("@tauri-apps/api/window", () => ({
   getCurrentWindow: () => ({
     close: vi.fn(async () => {}),
@@ -55,6 +58,23 @@ function state(lastPage: MainState["lastPage"]): MainState {
     language: "system",
     trayClickAction: "window",
     lastPage,
+  };
+}
+
+function integrationState(installed: boolean): IntegrationInfo {
+  return {
+    mcpCommand: "/Applications/aidget.app/Contents/MacOS/aidget",
+    mcpArgs: ["mcp"],
+    skillDirectory: "/Users/test/.aidget/skills/aidget",
+    skillContent: "",
+    agents: [
+      {
+        id: "codex",
+        name: "Codex",
+        icon: "codex-color",
+        mcp: { path: "/Users/test/.codex/config.toml", installed },
+      },
+    ],
   };
 }
 
@@ -149,5 +169,60 @@ describe("main window navigation", () => {
     finishFirstWrite!();
     await vi.waitFor(() => expect(written).toHaveLength(2));
     expect(written.at(-1)).toBe("about");
+  });
+
+  it("opens the GitHub repository from the about page", async () => {
+    await loadMain(state("about"));
+
+    expect(document.querySelector('[data-message="discord"]')).toBeNull();
+    const github = document.querySelector<HTMLButtonElement>("[data-github]")!;
+    expect(github.disabled).toBe(false);
+
+    github.click();
+    await vi.waitFor(() => {
+      expect(mocks.openUrl).toHaveBeenCalledWith("https://github.com/aidget-ai/aidget");
+    });
+  });
+
+  it("updates an Agent chip after a successful integration change", async () => {
+    let finishChange: ((state: IntegrationInfo) => void) | undefined;
+    mocks.invoke.mockImplementation((command: string, args?: unknown) => {
+      if (command === "main_state") return Promise.resolve(state("integrations"));
+      if (command === "main_painted") return Promise.resolve(true);
+      if (command === "integration_state") return Promise.resolve(integrationState(false));
+      if (command === "set_agent_integration") {
+        return new Promise((resolve) => {
+          finishChange = (next) => resolve({ state: next, problems: [] });
+        });
+      }
+      return Promise.resolve(args);
+    });
+
+    await import("../../src/main");
+    const codex = await vi.waitFor(() => {
+      const button = document.querySelector<HTMLButtonElement>('[data-agent="codex"]');
+      expect(button).not.toBeNull();
+      return button!;
+    });
+    codex.click();
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector('[data-view="integrations"]')!.getAttribute("aria-busy"),
+      ).toBe("true");
+    });
+    expect(mocks.invoke).toHaveBeenCalledWith("set_agent_integration", {
+      change: { agentIds: ["codex"], resource: "mcp", enabled: true },
+    });
+
+    finishChange!(integrationState(true));
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector('[data-view="integrations"]')!.getAttribute("aria-busy"),
+      ).toBe("false");
+    });
+    expect(
+      document.querySelector<HTMLButtonElement>('[data-agent="codex"]')!
+        .classList.contains("is-on"),
+    ).toBe(true);
   });
 });

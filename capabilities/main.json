@@ -11,6 +11,14 @@
     "core:window:allow-minimize",
     "core:window:allow-toggle-maximize",
     "core:window:allow-start-dragging",
-    "autostart:default"
+    "autostart:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://github.com/aidget-ai/aidget"
+        }
+      ]
+    }
   ]
 }

@@ -1,4 +1,4 @@
-import { agentIconUrl } from "./agent-icons";
+import { agentIcon } from "./agent-icons";
 import {
   allInstalled,
   integrationAgents,
@@ -90,10 +90,16 @@ function agentButton(
     : `${action} ${agent.name}\n${state.path}`;
   button.disabled = busy;
 
-  const url = agentIconUrl(agent.icon);
-  if (url) {
+  const icon = agentIcon(agent.icon);
+  if (icon?.monochrome) {
+    const mask = document.createElement("span");
+    mask.className = "agent-icon-mask";
+    mask.setAttribute("aria-hidden", "true");
+    mask.style.setProperty("--agent-icon-url", `url("${icon.url}")`);
+    button.append(mask);
+  } else if (icon) {
     const image = document.createElement("img");
-    image.src = url;
+    image.src = icon.url;
     image.alt = "";
     image.draggable = false;
     button.append(image);
