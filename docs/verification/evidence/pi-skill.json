@@ -1,0 +1,520 @@
+{
+  "testedCommit": "f930bef7dfef0a7219c1246e1160ea5a80815209",
+  "testedAt": "2026-10-25T10:11:54.596983100+08:00",
+  "phase": "skill-only lifecycle including native drag, content patch, UI restart and deletion",
+  "status": "passed",
+  "piVersion": "1.3.0",
+  "boundaries": {
+    "model": "Local deterministic provider scripts tool selection and arguments; no remote model or autonomous selection was tested.",
+    "actualPipeline": "Real Pi 1.3.0 AgentSession prompt, skill expansion, agent loop, tool validation, write/powershell tools, and actual unmodified aidget executable.",
+    "executable": "CLI calls explicitly used source-built target/debug/aidget.exe. Default per-user launcher installation/resolution and a real model following Skill prompts to find that launcher were not verified.",
+    "resources": "Explicit SDK ResourceLoader using Pi owning parsers on disposable paths; personal resources excluded. Stock interactive CLI default discovery was not tested.",
+    "replay": "This JSON records completed sessions. The local SDK provider/ResourceLoader and generated PowerShell fixture are not included, so this file cannot independently replay the same Pi SDK sessions. Static card source files are preserved under docs/verification/fixtures/pi-skill for manual CLI retesting.",
+    "isolation": "AIDGET_HOME, PI_CODING_AGENT_DIR and workspace are disposable; aidget MCP is absent in this phase.",
+    "pathNotation": "Angle-bracket paths replace local absolute paths; command arguments, revisions and frames are unchanged."
+  },
+  "skillDiscovery": {
+    "names": [
+      "aidget",
+      "unrelated-fixture"
+    ],
+    "activeTools": [
+      "read",
+      "bash",
+      "edit",
+      "write",
+      "powershell"
+    ],
+    "sha256": "9e52c520cef430beff56b6b213f018d0845be7971a2668744967e998f755435a",
+    "explicitInvocation": {
+      "input": "/skill:aidget 验证临时目录中的 Pi Skill 生命周期，不调用任何远程模型。",
+      "expanded": true,
+      "actualModelUserMessageExcerpts": [
+        "<skill name=\"aidget\" location=\"<PI_CODING_AGENT_DIR>\\skills\\aidget\\SKILL.md\">",
+        "References are relative to <PI_CODING_AGENT_DIR>\\skills\\aidget.",
+        "",
+        "1. **Read `agents.md` before editing.** `aidget_list` does not return it; call",
+        "验证临时目录中的 Pi Skill 生命周期，不调用任何远程模型。"
+      ]
+    },
+    "shorthandInvocation": {
+      "input": "/aidget 验证 GUI 显示的简写是否会展开。",
+      "expanded": false,
+      "actualModelUserMessage": "/aidget 验证 GUI 显示的简写是否会展开。",
+      "limitation": "Observed only in the explicitly configured SDK session with prompt templates excluded. Stock interactive CLI shorthand support and model interpretation were not tested; this is not a separately diagnosed defect."
+    }
+  },
+  "actualPiToolCalls": [
+    {
+      "toolCallId": "aidget-verification-1",
+      "toolName": "write",
+      "input": {
+        "path": "<WORKSPACE>\\index.html",
+        "utf8Bytes": 244
+      },
+      "isError": false,
+      "durationMs": 3,
+      "phase": "setup"
+    },
+    {
+      "toolCallId": "aidget-verification-2",
+      "toolName": "write",
+      "input": {
+        "path": "<WORKSPACE>\\style.css",
+        "utf8Bytes": 144
+      },
+      "isError": false,
+      "durationMs": 4,
+      "phase": "setup"
+    },
+    {
+      "toolCallId": "aidget-verification-3",
+      "toolName": "write",
+      "input": {
+        "path": "<WORKSPACE>\\agents.md",
+        "utf8Bytes": 183
+      },
+      "isError": false,
+      "durationMs": 3,
+      "phase": "setup"
+    },
+    {
+      "toolCallId": "aidget-verification-4",
+      "toolName": "write",
+      "input": {
+        "path": "<WORKSPACE>\\region.html",
+        "utf8Bytes": 63
+      },
+      "isError": false,
+      "durationMs": 4,
+      "phase": "setup"
+    },
+    {
+      "toolCallId": "aidget-verification-5",
+      "toolName": "write",
+      "input": {
+        "path": "<WORKSPACE>\\skill-lifecycle.ps1",
+        "utf8Bytes": 6240
+      },
+      "isError": false,
+      "durationMs": 4,
+      "phase": "setup"
+    },
+    {
+      "toolCallId": "aidget-verification-6",
+      "toolName": "powershell",
+      "input": {
+        "command": "& '<WORKSPACE>\\skill-lifecycle.ps1' -Phase 'setup'",
+        "timeoutSeconds": 45
+      },
+      "isError": false,
+      "durationMs": 2046,
+      "exitCode": 0,
+      "phase": "setup"
+    },
+    {
+      "phase": "after-drag",
+      "toolCallId": "aidget-verification-1",
+      "toolName": "powershell",
+      "command": "& '<WORKSPACE>\\skill-lifecycle.ps1' -Phase 'after-drag'",
+      "timeoutSeconds": 45,
+      "isError": false,
+      "exitCode": 0,
+      "durationMs": 1763
+    },
+    {
+      "phase": "restart-delete",
+      "toolCallId": "aidget-verification-1",
+      "toolName": "powershell",
+      "command": "& '<WORKSPACE>\\skill-lifecycle.ps1' -Phase 'restart-delete'",
+      "timeoutSeconds": 45,
+      "isError": false,
+      "exitCode": 0,
+      "durationMs": 1736
+    }
+  ],
+  "cliOperations": [
+    {
+      "argv": [
+        "doctor",
+        "--json"
+      ],
+      "uiRunning": true
+    },
+    {
+      "argv": [
+        "guide",
+        "--json"
+      ],
+      "result": "Authoring guide returned before create"
+    },
+    {
+      "argv": [
+        "displays",
+        "--json"
+      ],
+      "result": "Display list returned"
+    },
+    {
+      "argv": [
+        "widget",
+        "create",
+        "issue7-pi-skill",
+        "--title",
+        "Issue 7 Pi Skill",
+        "--html-file",
+        "<WORKSPACE>\\index.html",
+        "--css-file",
+        "<WORKSPACE>\\style.css",
+        "--agents-file",
+        "<WORKSPACE>\\agents.md",
+        "--drag-mode",
+        "all",
+        "--json"
+      ],
+      "result": {
+        "widget": "issue7-pi-skill",
+        "revision": 1,
+        "title": "Issue 7 Pi Skill",
+        "allowScripts": false,
+        "dragMode": "all",
+        "permissions": [],
+        "updatedAt": "2026-10-25T10:11:54.596983100+08:00",
+        "frame": {
+          "display": "primary",
+          "x": 456,
+          "y": 96,
+          "w": 360,
+          "h": 220
+        },
+        "boardRevision": 3
+      }
+    },
+    {
+      "argv": [
+        "widget",
+        "show",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      "result": {
+        "revision": 1,
+        "frame": {
+          "display": "primary",
+          "x": 456,
+          "y": 96,
+          "w": 360,
+          "h": 220
+        },
+        "agents": "# Verification card\nOnly edit the content region for text changes. Keep its heading and card size. Position belongs to the user; preserve native drag placement. No automatic refresh.\n",
+        "htmlReturned": true,
+        "cssReturned": true
+      }
+    },
+    {
+      "argv": [
+        "board",
+        "show",
+        "--json"
+      ],
+      "result": {
+        "boardRevision": 3
+      }
+    },
+    {
+      "argv": [
+        "widget",
+        "update",
+        "issue7-pi-skill",
+        "--revision",
+        "1",
+        "--title",
+        "Issue 7 Pi Skill updated",
+        "--json"
+      ],
+      "result": {
+        "widget": "issue7-pi-skill",
+        "revision": 2,
+        "title": "Issue 7 Pi Skill updated",
+        "allowScripts": false,
+        "dragMode": "all",
+        "permissions": [],
+        "updatedAt": "2026-10-25T10:11:54.744699700+08:00",
+        "boardRevision": 3
+      },
+      "frameReturned": false
+    },
+    {
+      "argv": [
+        "board",
+        "show",
+        "--json"
+      ],
+      "result": "Entire board unchanged by title update; script comparison passed"
+    },
+    {
+      "argv": [
+        "board",
+        "move",
+        "issue7-pi-skill",
+        "--revision",
+        "3",
+        "--x",
+        "80",
+        "--y",
+        "340",
+        "--w",
+        "360",
+        "--h",
+        "220",
+        "--json"
+      ],
+      "result": {
+        "widget": "issue7-pi-skill",
+        "revision": 2,
+        "title": "Issue 7 Pi Skill updated",
+        "allowScripts": false,
+        "dragMode": "all",
+        "permissions": [],
+        "updatedAt": "2026-10-25T10:11:54.744699700+08:00",
+        "frame": {
+          "display": "primary",
+          "x": 80,
+          "y": 340,
+          "w": 360,
+          "h": 220
+        },
+        "boardRevision": 4
+      }
+    },
+    {
+      "argv": [
+        "screenshot",
+        "issue7-pi-skill",
+        "--scale",
+        "1",
+        "--out",
+        "<ARTIFACTS>\\skill-before-drag.png",
+        "--json"
+      ],
+      "result": {
+        "widget": "issue7-pi-skill",
+        "bytes": 6543,
+        "width": 360,
+        "height": 220
+      }
+    },
+    {
+      "argv": [
+        "widget",
+        "show",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      "result": {
+        "revision": 2,
+        "frame": {
+          "display": "primary",
+          "x": 80,
+          "y": 340,
+          "w": 360,
+          "h": 220
+        }
+      }
+    },
+    {
+      "argv": [
+        "board",
+        "show",
+        "--json"
+      ],
+      "result": {
+        "boardRevision": 4
+      }
+    }
+  ],
+  "pending": [],
+  "screenshots": [
+    "gui-skill-only.png",
+    "skill-before-drag.png",
+    "skill-after-drag.png",
+    "skill-after-restart.png"
+  ],
+  "nativeDragAndPatch": {
+    "manualAction": "The user confirmed dragging the desktop card manually. Native drag attempts occurred before the final recorded position.",
+    "beforeFinalDrag": {
+      "revision": 2,
+      "boardRevision": 4,
+      "frame": {
+        "display": "primary",
+        "x": 80,
+        "y": 340,
+        "w": 360,
+        "h": 220
+      }
+    },
+    "afterNativeDrag": {
+      "revision": 2,
+      "boardRevision": 13,
+      "frame": {
+        "display": "primary",
+        "x": 595,
+        "y": 267,
+        "w": 360,
+        "h": 220
+      }
+    },
+    "commands": [
+      [
+        "widget",
+        "show",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      [
+        "board",
+        "show",
+        "--json"
+      ],
+      [
+        "widget",
+        "patch",
+        "issue7-pi-skill",
+        "content",
+        "--revision",
+        "2",
+        "--html-file",
+        "<WORKSPACE>\\region.html",
+        "--json"
+      ],
+      [
+        "widget",
+        "show",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      [
+        "board",
+        "show",
+        "--json"
+      ],
+      [
+        "screenshot",
+        "issue7-pi-skill",
+        "--scale",
+        "1",
+        "--out",
+        "<ARTIFACTS>\\skill-after-drag.png",
+        "--json"
+      ]
+    ],
+    "patchResult": {
+      "widget": "issue7-pi-skill",
+      "revision": 3,
+      "title": "Issue 7 Pi Skill updated",
+      "allowScripts": false,
+      "dragMode": "all",
+      "permissions": [],
+      "updatedAt": "2026-10-25T10:15:25.666736700+08:00",
+      "boardRevision": 13
+    },
+    "frameReturnedByPatch": false,
+    "afterContentPatch": {
+      "revision": 3,
+      "boardRevision": 13,
+      "frame": {
+        "display": "primary",
+        "x": 595,
+        "y": 267,
+        "w": 360,
+        "h": 220
+      }
+    },
+    "assertions": {
+      "contentRevisionAdvancedOnce": true,
+      "entireBoardUnchangedByPatch": true,
+      "frameUnchangedByPatch": true
+    },
+    "screenshot": {
+      "bytes": 10197,
+      "width": 360,
+      "height": 220
+    }
+  },
+  "restartAndDelete": {
+    "restartControl": "Operator checked the disposable UI executable path, stopped only that UI process and started a new process with the same isolated environment.",
+    "commands": [
+      [
+        "doctor",
+        "--json"
+      ],
+      [
+        "widget",
+        "show",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      [
+        "board",
+        "show",
+        "--json"
+      ],
+      [
+        "screenshot",
+        "issue7-pi-skill",
+        "--scale",
+        "1",
+        "--out",
+        "<ARTIFACTS>\\skill-after-restart.png",
+        "--json"
+      ],
+      [
+        "widget",
+        "delete",
+        "issue7-pi-skill",
+        "--json"
+      ],
+      [
+        "widget",
+        "list",
+        "--json"
+      ]
+    ],
+    "afterRestart": {
+      "uiRunning": true,
+      "revision": 3,
+      "boardRevision": 13,
+      "frame": {
+        "display": "primary",
+        "x": 595,
+        "y": 267,
+        "w": 360,
+        "h": 220
+      }
+    },
+    "assertions": {
+      "entireDocumentEqualAcrossRestart": true,
+      "entireBoardEqualAcrossRestart": true,
+      "deletedWidgetAbsentFromListing": true
+    },
+    "screenshot": {
+      "bytes": 7928,
+      "width": 360,
+      "height": 220
+    },
+    "deleteResult": {
+      "widget": "issue7-pi-skill",
+      "trashPath": "<AIDGET_HOME>\\trash\\issue7-pi-skill-20261025T101617"
+    },
+    "afterDelete": {
+      "boardRevision": 14,
+      "remainingWidgetIds": [
+        "welcome"
+      ]
+    }
+  },
+  "visualObservation": {
+    "afterDrag": "The 360x220 screenshot shows enlarged, clipped text after dragging. The cause was not investigated; passing frame/revision assertions do not prove visual correctness.",
+    "afterRestart": "The 360x220 screenshot shows normal-sized, fully visible text after the UI restart."
+  }
+}

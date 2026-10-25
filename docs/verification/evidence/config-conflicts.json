@@ -1,0 +1,72 @@
+{
+  "testedCommit": "f930bef7dfef0a7219c1246e1160ea5a80815209",
+  "scope": "Disposable Pi directory only; GUI detection reads existing state of other Agents but their configurations were not modified.",
+  "successfulRemoval": {
+    "operation": "GUI removal of Pi MCP and Skill before conflict seeding",
+    "remainingMcpConfig": {
+      "verificationMarker": "issue-7-unrelated-value",
+      "mcpServers": {
+        "preserved": {
+          "command": "never-run-issue7-fixture",
+          "args": [
+            "keep-me"
+          ],
+          "enabled": false
+        }
+      }
+    },
+    "unrelatedSkillSha256": "3e144d7820a46c142bb659f3b153e25b10ae1f4d0325ff7749b79998428eec19",
+    "aidgetMcpEntryAbsent": true,
+    "aidgetSkillAbsent": true,
+    "aidgetSkillAbsenceCheck": "Seeding used mkdir without recursive mode for skills/aidget; it succeeded only after GUI uninstall removed that directory."
+  },
+  "conflictFixtures": {
+    "mcp": {
+      "file": "<PI_CODING_AGENT_DIR>\\mcp.json",
+      "entry": {
+        "aidget": {
+          "command": "different-issue7-fixture",
+          "args": [
+            "keep-conflict"
+          ],
+          "enabled": false
+        }
+      }
+    },
+    "skill": {
+      "file": "<PI_CODING_AGENT_DIR>\\skills\\aidget\\SKILL.md",
+      "content": "---\nname: aidget\ndescription: Disposable conflicting skill.\n---\n\nKeep this different content unchanged.\n"
+    }
+  },
+  "guiAttempts": [
+    {
+      "operation": "Install Pi MCP over conflicting same-name entry",
+      "actualMessage": "Pi 配置失败：invalid params: <PI_CODING_AGENT_DIR>\\mcp.json already has a different `aidget` MCP entry",
+      "screenshot": "gui-mcp-conflict.png"
+    },
+    {
+      "operation": "Install Pi Skill over different same-name skill",
+      "actualMessage": "Pi 配置失败：invalid params: <PI_CODING_AGENT_DIR>\\skills\\aidget already contains a different aidget skill",
+      "screenshot": "gui-skill-conflict.png"
+    }
+  ],
+  "sha256Before": {
+    "mcp": "3a0e2e52c0cb171ce7db22079a4b066636d9e5aa79dc6db7a97fc50748f2f874",
+    "skill": "6e693337962e44afba3437ff3ab3ec6a9561e4129bce8d2e6a6f8efe4de69e3b",
+    "unrelated": "3e144d7820a46c142bb659f3b153e25b10ae1f4d0325ff7749b79998428eec19"
+  },
+  "sha256AfterBothAttempts": {
+    "mcp": "3a0e2e52c0cb171ce7db22079a4b066636d9e5aa79dc6db7a97fc50748f2f874",
+    "skill": "6e693337962e44afba3437ff3ab3ec6a9561e4129bce8d2e6a6f8efe4de69e3b",
+    "unrelated": "3e144d7820a46c142bb659f3b153e25b10ae1f4d0325ff7749b79998428eec19"
+  },
+  "assertions": {
+    "allThreeFilesByteIdentical": true,
+    "unrelatedMcpConfigPreserved": true
+  },
+  "hashFileMapping": {
+    "mcp": "<PI_CODING_AGENT_DIR>\\mcp.json",
+    "skill": "<PI_CODING_AGENT_DIR>\\skills\\aidget\\SKILL.md",
+    "unrelated": "<PI_CODING_AGENT_DIR>\\skills\\unrelated-fixture\\SKILL.md"
+  }
+}

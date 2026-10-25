@@ -1,0 +1,195 @@
+{
+  "testedCommit": "f930bef7dfef0a7219c1246e1160ea5a80815209",
+  "boundaries": {
+    "model": "Local deterministic provider scripts tool selection; no remote model or autonomous choice was tested.",
+    "actualPipeline": "Actual Pi 1.3.0 AgentSession, owning MCP config parser, stdio transport, codemode parent/child tool calls and real aidget executable.",
+    "resources": "Explicit SDK ResourceLoader excludes personal resources and prompt templates; default interactive CLI resource discovery was not tested.",
+    "status": "Guide positive control succeeds; bridge-dependent MCP lifecycle is blocked by Issue #9 in both scenarios. CLI success does not substitute for MCP success."
+  },
+  "mcpToolNames": [
+    "mcp__aidget__aidget_create",
+    "mcp__aidget__aidget_delete",
+    "mcp__aidget__aidget_get",
+    "mcp__aidget__aidget_guide",
+    "mcp__aidget__aidget_list",
+    "mcp__aidget__aidget_move",
+    "mcp__aidget__aidget_patch",
+    "mcp__aidget__aidget_screenshot",
+    "mcp__aidget__aidget_update"
+  ],
+  "scenarios": [
+    {
+      "mode": "mcp-only",
+      "piVersion": "1.3.0",
+      "skillNames": [
+        "unrelated-fixture"
+      ],
+      "guideCall": "passed",
+      "listCall": "failed",
+      "status": "MCP bridge-dependent lifecycle blocked",
+      "calls": [
+        {
+          "toolName": "codemode",
+          "toolCallId": "aidget-verification-1",
+          "input": {
+            "code": "// @options: {\"timeout_ms\":5000}\nconst result=await tools.mcp__aidget__aidget_guide({}); if(result.isError) throw new Error(\"aidget_guide returned error\"); text({version:result.structuredContent.version,guideKeys:Object.keys(result.structuredContent)});"
+          },
+          "isError": false,
+          "durationMs": 108,
+          "result": {
+            "contentText": [
+              "Script completed\nWall time 0.1 seconds\nOutput:\n",
+              "{\"version\":\"0.1.0\",\"guideKeys\":[\"version\",\"root\",\"layout\",\"configJson\",\"regions\",\"visuals\",\"scripts\",\"dragging\",\"permissions\",\"agents\",\"time\",\"position\",\"limits\",\"retention\",\"preferences\",\"screenshot\",\"errors\"]}"
+            ]
+          }
+        },
+        {
+          "toolName": "mcp__aidget__aidget_guide",
+          "toolCallId": "aidget-verification-1/1",
+          "parentToolCallId": "aidget-verification-1",
+          "input": {},
+          "isError": false,
+          "durationMs": 3,
+          "result": {
+            "version": "0.1.0",
+            "guideKeys": [
+              "version",
+              "root",
+              "layout",
+              "configJson",
+              "regions",
+              "visuals",
+              "scripts",
+              "dragging",
+              "permissions",
+              "agents",
+              "time",
+              "position",
+              "limits",
+              "retention",
+              "preferences",
+              "screenshot",
+              "errors"
+            ]
+          }
+        },
+        {
+          "toolName": "codemode",
+          "toolCallId": "aidget-verification-2",
+          "input": {
+            "code": "// @options: {\"timeout_ms\":10000}\nconst result=await tools.mcp__aidget__aidget_list({}); if(result.isError) throw new Error(\"aidget_list returned error\"); text(result);"
+          },
+          "isError": true,
+          "durationMs": 10003,
+          "result": {
+            "contentText": [
+              "Script failed\nWall time 10.0 seconds\nOutput:\n",
+              "Script error:\nScript timed out: Execution timed out after 10000 ms\n\nTool calls made before the failure (they are not undone): mcp__aidget__aidget_list (cancelled)"
+            ]
+          }
+        },
+        {
+          "toolName": "mcp__aidget__aidget_list",
+          "toolCallId": "aidget-verification-2/1",
+          "parentToolCallId": "aidget-verification-2",
+          "input": {},
+          "isError": true,
+          "durationMs": 9957,
+          "result": {
+            "contentText": [
+              "MCP request aborted"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "mode": "both",
+      "piVersion": "1.3.0",
+      "skillNames": [
+        "aidget",
+        "unrelated-fixture"
+      ],
+      "skillExpanded": true,
+      "guideCall": "passed",
+      "listCall": "failed",
+      "status": "MCP bridge-dependent lifecycle blocked",
+      "calls": [
+        {
+          "toolName": "codemode",
+          "toolCallId": "aidget-verification-1",
+          "input": {
+            "code": "// @options: {\"timeout_ms\":5000}\nconst result=await tools.mcp__aidget__aidget_guide({}); if(result.isError) throw new Error(\"aidget_guide returned error\"); text({version:result.structuredContent.version,guideKeys:Object.keys(result.structuredContent)});"
+          },
+          "isError": false,
+          "durationMs": 370,
+          "result": {
+            "contentText": [
+              "Script completed\nWall time 0.1 seconds\nOutput:\n",
+              "{\"version\":\"0.1.0\",\"guideKeys\":[\"version\",\"root\",\"layout\",\"configJson\",\"regions\",\"visuals\",\"scripts\",\"dragging\",\"permissions\",\"agents\",\"time\",\"position\",\"limits\",\"retention\",\"preferences\",\"screenshot\",\"errors\"]}"
+            ]
+          }
+        },
+        {
+          "toolName": "mcp__aidget__aidget_guide",
+          "toolCallId": "aidget-verification-1/1",
+          "parentToolCallId": "aidget-verification-1",
+          "input": {},
+          "isError": false,
+          "durationMs": 2,
+          "result": {
+            "version": "0.1.0",
+            "guideKeys": [
+              "version",
+              "root",
+              "layout",
+              "configJson",
+              "regions",
+              "visuals",
+              "scripts",
+              "dragging",
+              "permissions",
+              "agents",
+              "time",
+              "position",
+              "limits",
+              "retention",
+              "preferences",
+              "screenshot",
+              "errors"
+            ]
+          }
+        },
+        {
+          "toolName": "codemode",
+          "toolCallId": "aidget-verification-2",
+          "input": {
+            "code": "// @options: {\"timeout_ms\":10000}\nconst result=await tools.mcp__aidget__aidget_list({}); if(result.isError) throw new Error(\"aidget_list returned error\"); text(result);"
+          },
+          "isError": true,
+          "durationMs": 10017,
+          "result": {
+            "contentText": [
+              "Script failed\nWall time 10.0 seconds\nOutput:\n",
+              "Script error:\nScript timed out: Execution timed out after 10000 ms\n\nTool calls made before the failure (they are not undone): mcp__aidget__aidget_list (cancelled)"
+            ]
+          }
+        },
+        {
+          "toolName": "mcp__aidget__aidget_list",
+          "toolCallId": "aidget-verification-2/1",
+          "parentToolCallId": "aidget-verification-2",
+          "input": {},
+          "isError": true,
+          "durationMs": 9972,
+          "result": {
+            "contentText": [
+              "MCP request aborted"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "relatedIssue": "https://github.com/aidget-ai/aidget/issues/9"
+}

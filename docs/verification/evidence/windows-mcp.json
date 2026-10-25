@@ -1,0 +1,69 @@
+{
+  "executable": "aidget.exe",
+  "args": [
+    "mcp"
+  ],
+  "platform": "win32",
+  "architecture": "x64",
+  "nodeVersion": "v24.10.0",
+  "freshAidgetHome": true,
+  "explicitUiLaunch": false,
+  "mayAutoStartUi": true,
+  "timeoutMsPerRequest": 5000,
+  "steps": [
+    {
+      "id": 1,
+      "method": "initialize",
+      "ok": true,
+      "protocolVersion": "2025-03-26",
+      "elapsedMs": 56
+    },
+    {
+      "id": 2,
+      "method": "tools/list",
+      "ok": true,
+      "tools": [
+        "aidget_create",
+        "aidget_delete",
+        "aidget_get",
+        "aidget_guide",
+        "aidget_list",
+        "aidget_move",
+        "aidget_patch",
+        "aidget_screenshot",
+        "aidget_update"
+      ],
+      "elapsedMs": 2
+    },
+    {
+      "id": 3,
+      "method": "tools/call",
+      "tool": "aidget_guide",
+      "ok": true,
+      "contentTypes": [
+        "text"
+      ],
+      "elapsedMs": 1
+    },
+    {
+      "id": 4,
+      "method": "tools/call",
+      "tool": "aidget_list",
+      "ok": false,
+      "failure": "tools/call received no response within 5000 ms",
+      "elapsedMs": 5001
+    }
+  ],
+  "failure": "tools/call received no response within 5000 ms",
+  "childExit": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "mcpChildClosed": true,
+  "stderr": "thread 'tokio-rt-worker' (42104) panicked at src\\transport\\ipc.rs:242:17:\nCannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks. If you are in an async function, use `.await` on the future instead of blocking on it.\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+  "nestedRuntimePanic": true,
+  "testedCommit": "f930bef7dfef0a7219c1246e1160ea5a80815209",
+  "aidgetVersion": "0.1.0",
+  "operatingSystem": "Windows 11 x64, build 26200",
+  "exitCode": 1
+}
