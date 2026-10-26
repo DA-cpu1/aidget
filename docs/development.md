@@ -69,13 +69,8 @@ development version.
 
 ## CI
 
-The reusable Check workflow runs on `main` pushes, pull requests, and from the
+The `check` workflow runs on `main` pushes, pull requests, and from the
 Release workflow:
 
-- macOS: complete Rust tests plus the cross-target library check
-- Linux: UI and repository script tests, type checks, formatting and the
-  cross-target library check
-- Windows: the cross-target library check
-
-The release workflow also performs real Tauri packaging on all four release
+The `release` workflow also performs real Tauri packaging on all four release
 targets.

@@ -86,7 +86,9 @@ fn instructions_keep_the_extended_reference_below_the_first_line() {
 #[test]
 fn distributed_skill_documents_the_rules_agents_miss() {
     let skill = include_str!("../../skills/aidget/SKILL.md");
-    assert!(skill.starts_with("---\nname: aidget\n"));
+    let mut front_matter = skill.lines();
+    assert_eq!(front_matter.next(), Some("---"));
+    assert_eq!(front_matter.next(), Some("name: aidget"));
     // The rules that a truncated server summary would otherwise hide.
     for rule in [
         "Read `agents.md` before editing",

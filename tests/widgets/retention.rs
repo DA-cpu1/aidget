@@ -1,8 +1,7 @@
+use crate::common::utils::set_modified;
 use aidget::settings::{ensure, load};
 use aidget::widgets::retention;
 use std::fs;
-use std::path::Path;
-use std::time::{Duration, UNIX_EPOCH};
 
 use tempfile::TempDir;
 
@@ -13,13 +12,6 @@ fn root() -> (TempDir, std::path::PathBuf) {
     fs::create_dir_all(root.join("trash")).unwrap();
     ensure(&root).unwrap();
     (dir, root)
-}
-
-fn set_modified(path: &Path, timestamp: u64) {
-    fs::File::open(path)
-        .unwrap()
-        .set_modified(UNIX_EPOCH + Duration::from_secs(timestamp))
-        .unwrap();
 }
 
 #[test]

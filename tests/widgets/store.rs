@@ -1,3 +1,4 @@
+use crate::common::utils::set_modified;
 use aidget::common::error::Error;
 use aidget::runtime::main_window_state;
 use aidget::widgets::model::{validate_id, WidgetFrame, WidgetPermission};
@@ -5,8 +6,6 @@ use aidget::widgets::store::{
     patch_html_region, Store, WidgetEdit, AGENTS_FILE, CONFIG_FILE, HTML_FILE, SETTINGS_FILE,
 };
 use std::fs;
-use std::path::Path;
-use std::time::{Duration, UNIX_EPOCH};
 
 use tempfile::TempDir;
 
@@ -58,13 +57,6 @@ fn drag_mode_updates_preserve_position_and_survive_partial_edits() {
     let ack = store.content_ack(&partial).unwrap();
     assert_eq!(ack.drag_mode, WidgetDragMode::Handle);
     assert!(ack.frame.is_none());
-}
-
-fn set_modified(path: &Path, timestamp: u64) {
-    fs::File::open(path)
-        .unwrap()
-        .set_modified(UNIX_EPOCH + Duration::from_secs(timestamp))
-        .unwrap();
 }
 
 #[test]
