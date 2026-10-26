@@ -277,10 +277,15 @@ async fn async_mcp_bridge_calls_leave_the_runtime_responsive() {
         .unwrap();
     let (_bridge, list_received, heartbeat) = McpBridge::start(store.clone());
     let mcp = AidgetMcp::new(store);
-    let (listing, heartbeat_sent) = tokio::join!(mcp.list(), async {
-        list_received.await.unwrap();
-        heartbeat.send(())
-    });
+    let (listing, heartbeat_sent) =
+        tokio::time::timeout(std::time::Duration::from_secs(5), async {
+            tokio::join!(mcp.list(), async {
+                list_received.await.unwrap();
+                heartbeat.send(())
+            })
+        })
+        .await
+        .expect("MCP bridge test timed out");
     assert!(
         heartbeat_sent.is_ok(),
         "MCP blocked its current-thread runtime"
