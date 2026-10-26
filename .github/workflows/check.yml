@@ -62,7 +62,7 @@ jobs:
 
       - run: pnpm build:ui
 
-      - if: runner.os == 'Linux'
+      - name: Rust formatting
         run: cargo fmt --check
 
       - name: Cross-target library check
@@ -71,11 +71,9 @@ jobs:
         run: cargo check --lib
 
       - name: Rust tests
-        if: runner.os == 'macOS'
         run: cargo test
 
       - name: UI and release-script tests
-        if: runner.os == 'Linux'
         run: |
           pnpm test
           pnpm typecheck
