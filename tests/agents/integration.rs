@@ -100,7 +100,9 @@ fn batch_change_installs_mcp_and_skill_for_a_detected_agent() {
 
 #[test]
 fn packaged_skill_keeps_its_original_front_matter() {
-    assert!(SKILL_CONTENT.starts_with("---\nname: aidget\n"));
+    let mut front_matter = SKILL_CONTENT.lines();
+    assert_eq!(front_matter.next(), Some("---"));
+    assert_eq!(front_matter.next(), Some("name: aidget"));
     assert!(SKILL_CONTENT.contains("# aidget"));
 }
 
